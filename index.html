@@ -1042,48 +1042,32 @@ function setP3Pick(sel){
 
 // ── Seed p3picks from screenshot data (only applied if localStorage is empty) ─
 function seedP3Picks(){
-  const nameMap = {}; // "Last First" or "First Last" → canonical player name
-  players.forEach(p=>{ nameMap[p.name.toLowerCase()] = p.name; });
-
-  // Helper: look up player name flexibly
-  function findName(first, last){
-    const fl = (first+' '+last).toLowerCase();
-    const lf = (last+', '+first).toLowerCase();
-    if(nameMap[fl]) return nameMap[fl];
-    // Try partial match on last name
-    const found = players.find(p=>p.name.toLowerCase().includes(last.toLowerCase())&&p.name.toLowerCase().includes(first.toLowerCase()));
-    return found ? found.name : first+' '+last;
-  }
-
   const seed = {
-    'sony':      [findName('J.J.','Spaun'),    findName('Aaron','Rai'),         findName('Chris','Kirk')],
-    'amex':      [findName('Harry','Hall'),     findName('Si Woo','Kim'),        findName('Russell','Henley')],
-    'farmers':   [findName('Jason','Day'),      findName('Chris','Gotterup'),    findName('Sam','Stevens')],
-    'wm':        [findName('Si Woo','Kim'),     findName('Cameron','Young'),     findName('Pierceson','Coody')],
-    'att':       [findName('Si Woo','Kim'),     findName('Justin','Rose'),       findName('Russell','Henley')],
-    'genesis':   [findName('Hideki','Matsuyama'),findName('Collin','Morikawa'), findName('Tommy','Fleetwood')],
-    'cognizant': [findName('Shane','Lowry'),    findName('Nicolai','Hojgaard'), findName('Ryan','Gerard')],
-    'api':       [findName('Matt','Fitzpatrick'),findName('Collin','Morikawa'), findName('Ludvig','Aberg')],
-    'players':   [findName('Collin','Morikawa'),findName('Cameron','Young'),    findName('Ludvig','Aberg')],
-    'valspar':   [findName('Justin','Thomas'),  findName('Jacob','Bridgeman'),  findName('Brooks','Koepka')],
-    'texas':     [findName('Min Woo','Lee'),    findName('Nicolai','Hojgaard'), findName('Kurt','Kitayama')],
-    'valero':    [findName('Jordan','Spieth'),  findName('Robert','MacIntyre'), findName('Sepp','Straka')],
-    'masters':   [findName('Jon','Rahm'),       findName('Bryson','DeChambeau'),findName('Xander','Schauffele')],
-    'rbc':       [findName('Matt','Fitzpatrick'),findName('Patrick','Cantlay'), findName('Russell','Henley')],
-    'miami':     [findName('Hideki','Matsuyama'),findName('Chris','Gotterup'),  findName('Sam','Burns')],
-    'truist':    [findName('Adam','Scott'),     findName('Patrick','Cantlay'),  findName('Xander','Schauffele')],
-    'pga':       [findName('Scottie','Scheffler'),findName('Jon','Rahm'),       findName('Ludvig','Aberg')],
-    'cj':        [findName('Jordan','Spieth'),  findName('Brooks','Koepka'),    findName('Max','Greyserman')],
-    'schwab':    [findName('J.J.','Spaun'),     findName('Justin','Thomas'),    findName('Hideki','Matsuyama')],
-    'memorial':  [findName('Justin','Thomas'),  findName('Patrick','Cantlay'),  findName('J.J.','Spaun')],
-    'canadian':  [findName('Sam','Burns'),      findName('Wyndham','Clark'),    findName('Kristoffer','Reitan')],
-    'usopen':    [findName('Bryson','DeChambeau'),findName('Rory','McIlroy'),   findName('Xander','Schauffele')],
+    'sony':      ['J.J. Spaun',        'Aaron Rai',           'Chris Kirk'],
+    'amex':      ['Harry Hall',         'Si Woo Kim',          'Russell Henley'],
+    'farmers':   ['Jason Day',          'Chris Gotterup',      'Sam Stevens'],
+    'wm':        ['Si Woo Kim',         'Cameron Young',       'Pierceson Coody'],
+    'att':       ['Si Woo Kim',         'Justin Rose',         'Russell Henley'],
+    'genesis':   ['Hideki Matsuyama',   'Collin Morikawa',     'Tommy Fleetwood'],
+    'cognizant': ['Shane Lowry',        'Nicolai Hojgaard',    'Ryan Gerard'],
+    'api':       ['Matt Fitzpatrick',   'Collin Morikawa',     'Ludvig Aberg'],
+    'players':   ['Collin Morikawa',    'Cameron Young',       'Ludvig Aberg'],
+    'valspar':   ['Justin Thomas',      'Jacob Bridgeman',     'Brooks Koepka'],
+    'texas':     ['Min Woo Lee',        'Nicolai Hojgaard',    'Kurt Kitayama'],
+    'valero':    ['Jordan Spieth',      'Robert MacIntyre',    'Sepp Straka'],
+    'masters':   ['Jon Rahm',           'Bryson DeChambeau',   'Xander Schauffele'],
+    'rbc':       ['Matt Fitzpatrick',   'Patrick Cantlay',     'Russell Henley'],
+    'miami':     ['Hideki Matsuyama',   'Chris Gotterup',      'Sam Burns'],
+    'truist':    ['Adam Scott',         'Patrick Cantlay',     'Xander Schauffele'],
+    'pga':       ['Scottie Scheffler',  'Jon Rahm',            'Ludvig Aberg'],
+    'cj':        ['Jordan Spieth',      'Brooks Koepka',       'Max Greyserman'],
+    'schwab':    ['J.J. Spaun',         'Justin Thomas',       'Hideki Matsuyama'],
+    'memorial':  ['Justin Thomas',      'Patrick Cantlay',     'J.J. Spaun'],
+    'canadian':  ['Sam Burns',          'Wyndham Clark',       'Kristoffer Reitan'],
+    'usopen':    ['Bryson DeChambeau',  'Rory McIlroy',        'Xander Schauffele'],
   };
-
   Object.entries(seed).forEach(([tid, names])=>{
-    names.forEach((name, s)=>{
-      if(name) p3picks[tid+'_'+s] = name;
-    });
+    names.forEach((name, s)=>{ if(name) p3picks[tid+'_'+s] = name; });
   });
   saveP3();
 }
@@ -1264,7 +1248,6 @@ function escA(s){ return String(s||'').replace(/"/g,'&quot;'); }
   if(cached){
     try{ players=JSON.parse(cached); } catch(e){ players=SEEDED_PLAYERS; }
   } else {
-    // Use seeded rankings from attached CSV (current as of import date)
     players = SEEDED_PLAYERS;
   }
   // Dismiss hint if players are loaded
@@ -1276,10 +1259,14 @@ function escA(s){ return String(s||'').replace(/"/g,'&quot;'); }
   buildGrid();
 
   // Seed Pick 3 picks from screenshot data if no picks saved yet
+  // Runs after players are loaded so name lookup works
   if(p3IsNew){
     seedP3Picks();
-    toast('✓ Pre-loaded your Pick 3 picks from weeks 1–23');
+    setTimeout(()=>toast('✓ Pre-loaded your Pick 3 picks from weeks 1–23'), 500);
   }
+
+  // Always render P3 grid so Weekly Picks tab is populated on first load
+  renderP3Grid();
 })();
 </script>
 </body>
