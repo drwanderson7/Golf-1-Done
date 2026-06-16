@@ -903,8 +903,9 @@ function ingestPicksCSV(text, filename){
 // PICK 3 POOL — 3 picks per week, max 3 uses per player across the season
 // ══════════════════════════════════════════════════════════════════════════════
 
-let p3picks = JSON.parse(localStorage.getItem('oad_p3picks') || '{}');
-// p3picks key format: "{tournamentId}_{slot}" where slot = 0,1,2  value = player name
+let p3picks = JSON.parse(localStorage.getItem('oad_p3picks') || 'null');
+const p3IsNew = !p3picks;
+if(!p3picks) p3picks = {};
 
 let p3usageFilter = 'all';
 let p3availFilter = 'all';
@@ -1014,9 +1015,77 @@ function setP3Pick(sel){
   const s   = parseInt(sel.dataset.s);
   p3picks[tid+'_'+s] = sel.value;
   saveP3();
-  renderP3Grid();  // rebuild grid to refresh counts in all dropdowns
+  // Don't rebuild the whole grid — just update all option lists and warnings
+  // to reflect new usage counts without destroying the focused element
+  const counts = getP3UsageCounts();
+  T.forEach(t=>{
+    [0,1,2].forEach(slot=>{
+      const el = document.querySelector(`select[data-t3="${t.id}"][data-s="${slot}"]`);
+      if(!el) return;
+      const cur = el.value;
+      el.innerHTML = '<option value="">— select —</option>' + buildP3Opts(t.id, slot, cur, counts);
+      // Update conflict warnings
+      const weekPicks = [0,1,2].map(sx=>p3picks[t.id+'_'+sx]||'');
+      const dupWarn = el.closest('td').querySelector('.cw');
+      if(dupWarn){
+        const dupThisWeek = cur && weekPicks.filter(v=>v===cur).length > 1;
+        const overUsed    = cur && (counts[cur]||0) > 3;
+        dupWarn.style.display = (dupThisWeek||overUsed) ? 'block' : 'none';
+        dupWarn.textContent = dupThisWeek ? '⚠ Duplicate this week!' : '⚠ Used 3× already!';
+      }
+    });
+  });
+  p3UpdateStats();
   renderP3Usage();
   renderP3Avail();
+}
+
+// ── Seed p3picks from screenshot data (only applied if localStorage is empty) ─
+function seedP3Picks(){
+  const nameMap = {}; // "Last First" or "First Last" → canonical player name
+  players.forEach(p=>{ nameMap[p.name.toLowerCase()] = p.name; });
+
+  // Helper: look up player name flexibly
+  function findName(first, last){
+    const fl = (first+' '+last).toLowerCase();
+    const lf = (last+', '+first).toLowerCase();
+    if(nameMap[fl]) return nameMap[fl];
+    // Try partial match on last name
+    const found = players.find(p=>p.name.toLowerCase().includes(last.toLowerCase())&&p.name.toLowerCase().includes(first.toLowerCase()));
+    return found ? found.name : first+' '+last;
+  }
+
+  const seed = {
+    'sony':      [findName('J.J.','Spaun'),    findName('Aaron','Rai'),         findName('Chris','Kirk')],
+    'amex':      [findName('Harry','Hall'),     findName('Si Woo','Kim'),        findName('Russell','Henley')],
+    'farmers':   [findName('Jason','Day'),      findName('Chris','Gotterup'),    findName('Sam','Stevens')],
+    'wm':        [findName('Si Woo','Kim'),     findName('Cameron','Young'),     findName('Pierceson','Coody')],
+    'att':       [findName('Si Woo','Kim'),     findName('Justin','Rose'),       findName('Russell','Henley')],
+    'genesis':   [findName('Hideki','Matsuyama'),findName('Collin','Morikawa'), findName('Tommy','Fleetwood')],
+    'cognizant': [findName('Shane','Lowry'),    findName('Nicolai','Hojgaard'), findName('Ryan','Gerard')],
+    'api':       [findName('Matt','Fitzpatrick'),findName('Collin','Morikawa'), findName('Ludvig','Aberg')],
+    'players':   [findName('Collin','Morikawa'),findName('Cameron','Young'),    findName('Ludvig','Aberg')],
+    'valspar':   [findName('Justin','Thomas'),  findName('Jacob','Bridgeman'),  findName('Brooks','Koepka')],
+    'texas':     [findName('Min Woo','Lee'),    findName('Nicolai','Hojgaard'), findName('Kurt','Kitayama')],
+    'valero':    [findName('Jordan','Spieth'),  findName('Robert','MacIntyre'), findName('Sepp','Straka')],
+    'masters':   [findName('Jon','Rahm'),       findName('Bryson','DeChambeau'),findName('Xander','Schauffele')],
+    'rbc':       [findName('Matt','Fitzpatrick'),findName('Patrick','Cantlay'), findName('Russell','Henley')],
+    'miami':     [findName('Hideki','Matsuyama'),findName('Chris','Gotterup'),  findName('Sam','Burns')],
+    'truist':    [findName('Adam','Scott'),     findName('Patrick','Cantlay'),  findName('Xander','Schauffele')],
+    'pga':       [findName('Scottie','Scheffler'),findName('Jon','Rahm'),       findName('Ludvig','Aberg')],
+    'cj':        [findName('Jordan','Spieth'),  findName('Brooks','Koepka'),    findName('Max','Greyserman')],
+    'schwab':    [findName('J.J.','Spaun'),     findName('Justin','Thomas'),    findName('Hideki','Matsuyama')],
+    'memorial':  [findName('Justin','Thomas'),  findName('Patrick','Cantlay'),  findName('J.J.','Spaun')],
+    'canadian':  [findName('Sam','Burns'),      findName('Wyndham','Clark'),    findName('Kristoffer','Reitan')],
+    'usopen':    [findName('Bryson','DeChambeau'),findName('Rory','McIlroy'),   findName('Xander','Schauffele')],
+  };
+
+  Object.entries(seed).forEach(([tid, names])=>{
+    names.forEach((name, s)=>{
+      if(name) p3picks[tid+'_'+s] = name;
+    });
+  });
+  saveP3();
 }
 
 // ── Player usage tracker ──────────────────────────────────────────────────────
@@ -1205,6 +1274,12 @@ function escA(s){ return String(s||'').replace(/"/g,'&quot;'); }
   }
   updateRankingsStatus();
   buildGrid();
+
+  // Seed Pick 3 picks from screenshot data if no picks saved yet
+  if(p3IsNew){
+    seedP3Picks();
+    toast('✓ Pre-loaded your Pick 3 picks from weeks 1–23');
+  }
 })();
 </script>
 </body>
