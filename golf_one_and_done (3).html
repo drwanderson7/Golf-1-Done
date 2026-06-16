@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One &amp; Done Pool Tracker — 2025 PGA Tour</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#F5F6F8;color:#1A1A2E;min-height:100vh}
+:root{--bg:#F5F6F8;--surface:#fff;--s2:#F0F1F3;--nav:#1E2A3A;--border:#E2E4E8;--text:#1A1A2E;--muted:#6B7280;--blue:#2563EB;--green:#16A34A;--yellow:#CA8A04;--orange:#EA580C;--red:#DC2626}
+/* nav */
+.nav{background:var(--nav);color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.nav-title{font-size:16px;font-weight:600;letter-spacing:-.3px}
+.nav-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.btn{border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;border:none;transition:background .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.22)}.btn-ghost:hover{background:rgba(255,255,255,.2)}
+/* tabs */
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;position:sticky;top:52px;z-index:99}
+.tab{padding:11px 16px;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;user-select:none}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab:hover:not(.active){color:var(--text);background:var(--s2)}
+/* layout */
+.main{padding:16px;max-width:1400px;margin:0 auto}
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;overflow:hidden}
+.card-hd{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--s2)}
+.card-hd h3{font-size:14px;font-weight:600}
+.card-bd{padding:14px 16px}
+/* stat row */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stat-v{font-size:24px;font-weight:700;color:var(--blue)}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+/* pool badges */
+.pb{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700}
+.p1{background:#dbeafe;color:#1d4ed8}.p2{background:#dcfce7;color:#166534}
+.p3{background:#fef3c7;color:#92400e}.p4{background:#fce7f3;color:#9d174d}
+/* pool names */
+.names-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.name-wrap{display:flex;align-items:center;gap:6px}
+input.ni{border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:12px;width:108px;font-family:inherit;background:var(--surface);color:var(--text)}
+input.ni:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+/* picks table */
+.picks-wrap{overflow-x:auto}
+table.pt{width:100%;border-collapse:collapse;font-size:12px;min-width:740px}
+table.pt th{background:var(--nav);color:#fff;padding:8px 10px;text-align:left;font-weight:500;white-space:nowrap}
+table.pt td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+table.pt tbody tr:last-child td{border-bottom:none}
+table.pt tbody tr:hover td{background:var(--s2)}
+.wb{font-size:10px;padding:2px 6px;border-radius:10px;font-weight:500}
+.past{background:#dcfce7;color:#166534}.current{background:#dbeafe;color:#1d4ed8}.future{background:#f3f4f6;color:#374151}
+select.ps{width:100%;border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:12px;background:var(--surface);color:var(--text);font-family:inherit;cursor:pointer;min-width:155px}
+select.ps:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+.cw{display:none;background:#fef3c7;color:#92400e;border-radius:4px;font-size:10px;padding:2px 5px;margin-top:3px}
+/* rankings / remaining table */
+table.rt{width:100%;border-collapse:collapse;font-size:13px}
+table.rt th{padding:8px 12px;text-align:left;border-bottom:2px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+table.rt td{padding:7px 12px;border-bottom:1px solid var(--border)}
+table.rt tbody tr:hover td{background:var(--s2)}
+.rbadge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:600}
+/* filters */
+.filter-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fb{padding:5px 11px;border:1px solid var(--border);border-radius:18px;background:var(--surface);font-size:12px;cursor:pointer;color:var(--muted);font-family:inherit;transition:all .12s}
+.fb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.fb:hover:not(.active){color:var(--text);border-color:#999}
+input.si{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;width:200px;background:var(--surface);color:var(--text);font-family:inherit}
+input.si:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+/* distribution */
+.db{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.db:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.dr{display:flex;align-items:center;gap:8px;padding:4px 0}
+.dname{font-size:13px;font-weight:500;min-width:165px}
+.dbw{flex:1;background:var(--s2);border-radius:3px;height:14px;overflow:hidden}
+.dbar{height:100%;border-radius:3px}
+.dcnt{font-size:12px;color:var(--muted);min-width:60px;text-align:right}
+/* pills */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;margin-left:5px}
+.pill-g{background:#dcfce7;color:#166534}.pill-r{background:#fee2e2;color:#991b1b}
+/* import banner */
+.import-banner{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.import-banner .icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.import-banner h4{font-size:14px;font-weight:600;color:#1e40af;margin-bottom:3px}
+.import-banner p{font-size:12px;color:#1e3a8a;line-height:1.6}
+.import-banner a{color:var(--blue)}
+/* toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--nav);color:#fff;padding:9px 15px;border-radius:7px;font-size:13px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.toast.show{opacity:1}
+/* empty */
+.empty{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+/* help */
+.hs h4{font-size:14px;font-weight:600;margin:14px 0 4px;color:var(--text)}
+.hs h4:first-child{margin-top:0}
+.hs p,.hs li{font-size:13px;color:var(--muted);line-height:1.7}
+.hs ul{padding-left:16px;margin-bottom:6px}
+.ks{display:inline-block;background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:12px;color:var(--text)}
+/* import drop zone */
+.drop-zone{border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:var(--s2)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--blue);background:#eff6ff}
+.drop-zone p{font-size:13px;color:var(--muted);margin-top:8px}
+.drop-zone .big{font-size:28px}
+/* tour badge */
+.tour{display:inline-block;font-size:10px;padding:1px 5px;border-radius:4px;font-weight:500;background:#f3f4f6;color:#374151;margin-left:4px}
+.tour-pga{background:#dbeafe;color:#1d4ed8}
+.tour-liv{background:#dcfce7;color:#166534}
+.tour-dp{background:#fef3c7;color:#92400e}
+.tour-kft{background:#fce7f3;color:#9d174d}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div>
+    <div class="nav-title">⛳ One &amp; Done Pool Tracker</div>
+    <div class="nav-sub">4 pools · Sony Open → BMW Championship · 2026 PGA Tour</div>
+  </div>
+  <div class="nav-right">
+    <label class="btn btn-ghost" style="cursor:pointer" title="Import DataGolf CSV rankings">
+      ↑ Import Rankings
+      <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSVFile(this)">
+    </label>
+    <label class="btn btn-ghost" style="cursor:pointer" title="Restore picks from a previously exported CSV">
+      ↑ Import Picks
+      <input type="file" id="picks-file-input" accept=".csv" style="display:none" onchange="handlePicksFile(this)">
+    </label>
+    <button class="btn btn-primary" onclick="exportCSV()">↓ Export Picks CSV</button>
+    <button class="btn btn-ghost" id="p3-export-btn" style="display:none" onclick="exportP3CSV()">↓ Export Pick 3 CSV</button>
+    <label class="btn btn-ghost" id="p3-import-btn" style="display:none;cursor:pointer" title="Restore Pick 3 picks from CSV">
+      ↑ Import Pick 3
+      <input type="file" id="p3-picks-file" accept=".csv" style="display:none" onchange="handleP3PicksFile(this)">
+    </label>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('picks')" id="tab-picks">My Picks</div>
+  <div class="tab" onclick="showTab('distribution')" id="tab-distribution">Pick Distribution</div>
+  <div class="tab" onclick="showTab('remaining')" id="tab-remaining">Remaining Players</div>
+  <div class="tab" onclick="showTab('players')" id="tab-players">DG Rankings</div>
+  <div class="tab" onclick="showTab('pick3')" id="tab-pick3">⛳ Pick 3 Pool</div>
+  <div class="tab" onclick="showTab('help')" id="tab-help">Help</div>
+</div>
+
+<div class="main">
+
+<!-- PICKS -->
+<div id="pane-picks">
+  <div class="stats">
+    <div class="stat"><div class="stat-v" id="st-weeks">33</div><div class="stat-l">Total Weeks</div></div>
+    <div class="stat"><div class="stat-v" id="st-filled">0</div><div class="stat-l">Picks Made</div></div>
+    <div class="stat"><div class="stat-v" id="st-left">—</div><div class="stat-l">Picks Left</div></div>
+    <div class="stat"><div class="stat-v" id="st-conf" style="color:var(--blue)">0</div><div class="stat-l">Conflicts</div></div>
+  </div>
+  <div id="import-hint" class="import-banner">
+    <div class="icon">📋</div>
+    <div>
+      <h4>Import DataGolf rankings CSV for accurate player data</h4>
+      <p>Download the rankings CSV from <a href="https://datagolf.com/datagolf-rankings" target="_blank">datagolf.com/datagolf-rankings</a> (click Export → CSV), then click <strong>↑ Import Rankings</strong> in the top-right header. Rankings will update instantly and save for future sessions. You can re-import anytime to refresh.</p>
+    </div>
+    <button onclick="dismissHint()" style="background:none;border:none;color:#93c5fd;font-size:18px;cursor:pointer;flex-shrink:0;padding:0 0 0 8px" title="Dismiss">✕</button>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <h3>Weekly Picks — All 4 Pools</h3>
+      <span style="font-size:11px;color:var(--muted)">Each player usable once per pool · auto-saves · <span id="rankings-status">Built-in list</span></span>
+    </div>
+    <div class="card-bd">
+      <div class="names-row" id="names-row"></div>
+      <div class="picks-wrap" id="picks-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DISTRIBUTION -->
+<div id="pane-distribution" style="display:none">
+  <div class="card">
+    <div class="card-hd"><h3>Pick Distribution by Tournament</h3></div>
+    <div class="card-bd" id="dist-body"><div class="empty">Enter picks to see distribution.</div></div>
+  </div>
+</div>
+
+<!-- REMAINING -->
+<div id="pane-remaining" style="display:none">
+  <div class="filter-row">
+    <span style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;line-height:27px">Pool:</span>
+    <button class="fb active" onclick="setRP('all',this)">All Pools</button>
+    <button class="fb" onclick="setRP(0,this)"><span class="pb p1">P1</span></button>
+    <button class="fb" onclick="setRP(1,this)"><span class="pb p2">P2</span></button>
+    <button class="fb" onclick="setRP(2,this)"><span class="pb p3">P3</span></button>
+    <button class="fb" onclick="setRP(3,this)"><span class="pb p4">P4</span></button>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>Players Still Available</h3></div>
+    <div style="overflow-x:auto" id="remain-body"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<!-- DG RANKINGS -->
+<div id="pane-players" style="display:none">
+  <div class="filter-row">
+    <input class="si" type="text" id="psearch" placeholder="Search player..." oninput="renderPT()">
+    <button class="fb active" onclick="setRF('all',this)">All</button>
+    <button class="fb" onclick="setRF('top25',this)">Top 25</button>
+    <button class="fb" onclick="setRF('top50',this)">Top 50</button>
+    <button class="fb" onclick="setRF('top100',this)">Top 100</button>
+    <button class="fb" onclick="setRF('avail',this)">Available Only</button>
+    <button class="fb" onclick="setRF('pga',this)">PGA Tour Only</button>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <h3>DataGolf World Rankings</h3>
+      <span id="dg-label" style="font-size:11px;color:var(--muted)">Built-in list</span>
+    </div>
+    <div style="overflow-x:auto" id="player-body"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<!-- PICK 3 POOL -->
+<div id="pane-pick3" style="display:none">
+  <div class="stats">
+    <div class="stat"><div class="stat-v" id="p3-stat-picks">0</div><div class="stat-l">Picks Made</div></div>
+    <div class="stat"><div class="stat-v" id="p3-stat-left">93</div><div class="stat-l">Picks Left</div></div>
+    <div class="stat"><div class="stat-v" id="p3-stat-maxed">0</div><div class="stat-l">Players Maxed (3×)</div></div>
+    <div class="stat"><div class="stat-v" id="p3-stat-used">0</div><div class="stat-l">Unique Players Used</div></div>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:14px;background:var(--surface)">
+    <button class="p3-sub active" id="p3-sub-picks" onclick="showP3Sub('picks',this)" style="flex:1;padding:8px;font-size:13px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">Weekly Picks</button>
+    <button class="p3-sub" id="p3-sub-usage" onclick="showP3Sub('usage',this)" style="flex:1;padding:8px;font-size:13px;border:none;background:var(--surface);color:var(--muted);cursor:pointer;font-family:inherit;border-left:1px solid var(--border)">Player Usage</button>
+    <button class="p3-sub" id="p3-sub-avail" onclick="showP3Sub('avail',this)" style="flex:1;padding:8px;font-size:13px;border:none;background:var(--surface);color:var(--muted);cursor:pointer;font-family:inherit;border-left:1px solid var(--border)">Available Players</button>
+  </div>
+
+  <!-- Weekly Picks sub-pane -->
+  <div id="p3-pane-picks">
+    <div class="card">
+      <div class="card-hd">
+        <h3>Pick 3 Pool — Weekly Picks</h3>
+        <span style="font-size:11px;color:var(--muted)">3 picks per tournament · each player usable up to 3× total · auto-saves</span>
+      </div>
+      <div class="card-bd" style="padding:0">
+        <div style="overflow-x:auto" id="p3-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Usage sub-pane -->
+  <div id="p3-pane-usage" style="display:none">
+    <div class="filter-row">
+      <input class="si" type="text" id="p3-usage-search" placeholder="Search player..." oninput="renderP3Usage()">
+      <button class="fb active" onclick="setP3UF('all',this)">All Used</button>
+      <button class="fb" onclick="setP3UF('1',this)">Used 1×</button>
+      <button class="fb" onclick="setP3UF('2',this)">Used 2×</button>
+      <button class="fb" onclick="setP3UF('3',this)">Used 3× (Maxed)</button>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3>Player Usage Tracker</h3></div>
+      <div style="overflow-x:auto" id="p3-usage-body"><div class="empty">No picks entered yet.</div></div>
+    </div>
+  </div>
+
+  <!-- Available Players sub-pane -->
+  <div id="p3-pane-avail" style="display:none">
+    <div class="filter-row">
+      <input class="si" type="text" id="p3-avail-search" placeholder="Search player..." oninput="renderP3Avail()">
+      <button class="fb active" onclick="setP3AF('all',this)">All Available</button>
+      <button class="fb" onclick="setP3AF('unused',this)">Never Used</button>
+      <button class="fb" onclick="setP3AF('1left',this)">1 Use Left</button>
+      <button class="fb" onclick="setP3AF('2left',this)">2 Uses Left</button>
+      <button class="fb" onclick="setP3AF('pga',this)">PGA Tour Only</button>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3>Available Players (not yet maxed at 3×)</h3></div>
+      <div style="overflow-x:auto" id="p3-avail-body"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><h3>↑ Importing DataGolf Rankings</h3></div>
+    <div class="card-bd">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file-input2').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="event.preventDefault();this.classList.remove('drag-over');handleCSVDrop(event)">
+        <div class="big">📂</div>
+        <strong style="font-size:14px;color:var(--text)">Drop DataGolf CSV here or click to browse</strong>
+        <p>Download from <a href="https://datagolf.com/datagolf-rankings" target="_blank" onclick="event.stopPropagation()">datagolf.com/datagolf-rankings</a> → Export → CSV<br>
+        Accepts the standard DataGolf rankings export format.</p>
+        <input type="file" id="csv-file-input2" accept=".csv" style="display:none" onchange="handleCSVFile(this)">
+      </div>
+      <div id="import-result" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>How to Use</h3></div>
+    <div class="card-bd hs">
+      <h4>Overview</h4>
+      <p>Tracks picks across 4 one-and-done pools for the 2026 PGA Tour season — Sony Open (Jan 15) through BMW Championship (Aug 20). Each player can only be used once per pool across the season.</p>
+      <h4>Importing Rankings</h4>
+      <ul>
+        <li>Go to <a href="https://datagolf.com/datagolf-rankings" target="_blank" style="color:var(--blue)">datagolf.com/datagolf-rankings</a></li>
+        <li>Click the Export / CSV button on the page</li>
+        <li>Click <span class="ks">↑ Import Rankings</span> in the header (or drop the file in the box above)</li>
+        <li>Rankings update instantly — names, DG rank, OWGR, tour, and rating are all pulled from the file</li>
+        <li>Rankings persist across browser sessions until you import a newer file</li>
+      </ul>
+      <h4>My Picks tab</h4>
+      <p>Dropdowns list players by DG rank. Already-used players show ✗ in red. Duplicate picks in the same pool get a conflict warning.</p>
+      <h4>Pick Distribution tab</h4>
+      <p>Shows how your picks spread (or stack) across pools each week. Bar color: blue = 1 pool, yellow = 2, orange = 3, red = all 4.</p>
+      <h4>Remaining Players tab</h4>
+      <p>All players still available in each pool ordered by DG rank. Filter to a single pool to plan ahead.</p>
+      <h4>DG Rankings tab</h4>
+      <p>Full imported rankings with search, rank filters, and a PGA Tour–only filter. Dimmed rows = player already used in at least one pool.</p>
+      <h4>Pool names</h4>
+      <p>Edit pool names in the text fields at the top of the My Picks tab. Saves automatically.</p>
+      <h4>Export &amp; Import picks</h4>
+      <ul>
+        <li>Click <span class="ks">↓ Export Picks CSV</span> to save all picks across all 4 pools as a backup file. Do this regularly.</li>
+        <li>Click <span class="ks">↑ Import Picks</span> to restore picks from any previously exported CSV. This will overlay the imported picks on top of whatever is currently saved — existing picks not in the file are kept.</li>
+        <li>Pool names are also restored from the CSV header row automatically.</li>
+      </ul>
+      <h4>Data storage</h4>
+      <p>Picks, pool names, and the imported player list are all saved in browser localStorage — they persist across browser sessions on the same machine. If you ever clear browser data or move computers, use <span class="ks">↓ Export Picks CSV</span> first so you can restore with <span class="ks">↑ Import Picks</span>.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ── Seeded rankings (from imported CSV — auto-replaced on re-import) ──────────
+const SEEDED_PLAYERS = [{"name":"Scottie Scheffler","tour":"PGA Tour","dg_rank":1,"dg_index":2.895,"owgr_rank":1},{"name":"Rory McIlroy","tour":"PGA Tour","dg_rank":2,"dg_index":2.075,"owgr_rank":2},{"name":"Cameron Young","tour":"PGA Tour","dg_rank":3,"dg_index":2.06,"owgr_rank":3},{"name":"Jon Rahm","tour":"LIV Golf","dg_rank":4,"dg_index":2.009,"owgr_rank":12},{"name":"Ludvig Aberg","tour":"PGA Tour","dg_rank":5,"dg_index":1.852,"owgr_rank":15},{"name":"Matt Fitzpatrick","tour":"PGA Tour","dg_rank":6,"dg_index":1.832,"owgr_rank":4},{"name":"Xander Schauffele","tour":"PGA Tour","dg_rank":7,"dg_index":1.774,"owgr_rank":10},{"name":"Russell Henley","tour":"PGA Tour","dg_rank":8,"dg_index":1.704,"owgr_rank":5},{"name":"Tommy Fleetwood","tour":"PGA Tour","dg_rank":9,"dg_index":1.602,"owgr_rank":8},{"name":"Si Woo Kim","tour":"PGA Tour","dg_rank":10,"dg_index":1.586,"owgr_rank":19},{"name":"Patrick Cantlay","tour":"PGA Tour","dg_rank":11,"dg_index":1.512,"owgr_rank":33},{"name":"Collin Morikawa","tour":"PGA Tour","dg_rank":12,"dg_index":1.43,"owgr_rank":7},{"name":"J.J. Spaun","tour":"PGA Tour","dg_rank":13,"dg_index":1.373,"owgr_rank":9},{"name":"Sam Burns","tour":"PGA Tour","dg_rank":14,"dg_index":1.359,"owgr_rank":34},{"name":"Chris Gotterup","tour":"PGA Tour","dg_rank":15,"dg_index":1.35,"owgr_rank":11},{"name":"Maverick McNealy","tour":"PGA Tour","dg_rank":16,"dg_index":1.333,"owgr_rank":35},{"name":"Alex Smalley","tour":"PGA Tour","dg_rank":17,"dg_index":1.32,"owgr_rank":38},{"name":"Ben Griffin","tour":"PGA Tour","dg_rank":18,"dg_index":1.31,"owgr_rank":14},{"name":"Bryson DeChambeau","tour":"LIV Golf","dg_rank":19,"dg_index":1.28,"owgr_rank":28},{"name":"Jake Knapp","tour":"PGA Tour","dg_rank":20,"dg_index":1.254,"owgr_rank":40},{"name":"Min Woo Lee","tour":"PGA Tour","dg_rank":21,"dg_index":1.252,"owgr_rank":31},{"name":"Harris English","tour":"PGA Tour","dg_rank":22,"dg_index":1.237,"owgr_rank":23},{"name":"Nicolai Hojgaard","tour":"PGA Tour","dg_rank":23,"dg_index":1.237,"owgr_rank":29},{"name":"Alex Noren","tour":"PGA Tour","dg_rank":24,"dg_index":1.211,"owgr_rank":21},{"name":"Hideki Matsuyama","tour":"PGA Tour","dg_rank":25,"dg_index":1.199,"owgr_rank":20},{"name":"Justin Thomas","tour":"PGA Tour","dg_rank":26,"dg_index":1.175,"owgr_rank":16},{"name":"Robert MacIntyre","tour":"PGA Tour","dg_rank":27,"dg_index":1.174,"owgr_rank":17},{"name":"Rickie Fowler","tour":"PGA Tour","dg_rank":28,"dg_index":1.166,"owgr_rank":39},{"name":"Kurt Kitayama","tour":"PGA Tour","dg_rank":29,"dg_index":1.136,"owgr_rank":30},{"name":"Adam Scott","tour":"PGA Tour","dg_rank":30,"dg_index":1.131,"owgr_rank":50},{"name":"Justin Rose","tour":"PGA Tour","dg_rank":31,"dg_index":1.124,"owgr_rank":6},{"name":"Shane Lowry","tour":"PGA Tour","dg_rank":32,"dg_index":1.123,"owgr_rank":41},{"name":"Viktor Hovland","tour":"PGA Tour","dg_rank":33,"dg_index":1.1,"owgr_rank":32},{"name":"Akshay Bhatia","tour":"PGA Tour","dg_rank":34,"dg_index":1.096,"owgr_rank":26},{"name":"Patrick Reed","tour":"DP World Tour","dg_rank":35,"dg_index":1.087,"owgr_rank":22},{"name":"Jordan Spieth","tour":"PGA Tour","dg_rank":36,"dg_index":1.059,"owgr_rank":49},{"name":"Nick Taylor","tour":"PGA Tour","dg_rank":37,"dg_index":1.033,"owgr_rank":60},{"name":"Wyndham Clark","tour":"PGA Tour","dg_rank":38,"dg_index":0.937,"owgr_rank":45},{"name":"Kristoffer Reitan","tour":"PGA Tour","dg_rank":39,"dg_index":0.932,"owgr_rank":25},{"name":"Aaron Rai","tour":"PGA Tour","dg_rank":40,"dg_index":0.917,"owgr_rank":13},{"name":"Sepp Straka","tour":"PGA Tour","dg_rank":41,"dg_index":0.896,"owgr_rank":18},{"name":"Gary Woodland","tour":"PGA Tour","dg_rank":42,"dg_index":0.888,"owgr_rank":43},{"name":"Keegan Bradley","tour":"PGA Tour","dg_rank":43,"dg_index":0.885,"owgr_rank":37},{"name":"Joaquin Niemann","tour":"LIV Golf","dg_rank":44,"dg_index":0.885,"owgr_rank":78},{"name":"Jackson Koivun","tour":"Amateur Events","dg_rank":45,"dg_index":0.864,"owgr_rank":247},{"name":"Mac Meissner","tour":"PGA Tour","dg_rank":46,"dg_index":0.86,"owgr_rank":81},{"name":"David Puig","tour":"LIV Golf","dg_rank":47,"dg_index":0.854,"owgr_rank":60},{"name":"Ryan Gerard","tour":"PGA Tour","dg_rank":48,"dg_index":0.841,"owgr_rank":36},{"name":"Jacob Bridgeman","tour":"PGA Tour","dg_rank":49,"dg_index":0.838,"owgr_rank":24},{"name":"Harry Hall","tour":"PGA Tour","dg_rank":50,"dg_index":0.83,"owgr_rank":64},{"name":"Eric Cole","tour":"PGA Tour","dg_rank":51,"dg_index":0.83,"owgr_rank":69},{"name":"Corey Conners","tour":"PGA Tour","dg_rank":52,"dg_index":0.808,"owgr_rank":53},{"name":"Tyrrell Hatton","tour":"LIV Golf","dg_rank":53,"dg_index":0.772,"owgr_rank":27},{"name":"Keith Mitchell","tour":"PGA Tour","dg_rank":54,"dg_index":0.757,"owgr_rank":99},{"name":"Jason Day","tour":"PGA Tour","dg_rank":55,"dg_index":0.726,"owgr_rank":44},{"name":"Michael Kim","tour":"PGA Tour","dg_rank":56,"dg_index":0.718,"owgr_rank":47},{"name":"Alex Fitzpatrick","tour":"DP World Tour","dg_rank":57,"dg_index":0.708,"owgr_rank":88},{"name":"Daniel Berger","tour":"PGA Tour","dg_rank":58,"dg_index":0.704,"owgr_rank":42},{"name":"Andrew Putnam","tour":"PGA Tour","dg_rank":59,"dg_index":0.703,"owgr_rank":84},{"name":"Pierceson Coody","tour":"PGA Tour","dg_rank":60,"dg_index":0.699,"owgr_rank":55},{"name":"Matt McCarty","tour":"PGA Tour","dg_rank":61,"dg_index":0.687,"owgr_rank":51},{"name":"Christiaan Bezuidenhout","tour":"PGA Tour","dg_rank":62,"dg_index":0.685,"owgr_rank":93},{"name":"Brian Harman","tour":"PGA Tour","dg_rank":63,"dg_index":0.665,"owgr_rank":57},{"name":"Bud Cauley","tour":"PGA Tour","dg_rank":64,"dg_index":0.652,"owgr_rank":65},{"name":"Brooks Koepka","tour":"PGA Tour","dg_rank":65,"dg_index":0.633,"owgr_rank":107},{"name":"Daniel Hillier","tour":"DP World Tour","dg_rank":66,"dg_index":0.601,"owgr_rank":90},{"name":"Ryo Hisatsune","tour":"PGA Tour","dg_rank":67,"dg_index":0.584,"owgr_rank":59},{"name":"Ryan Fox","tour":"PGA Tour","dg_rank":68,"dg_index":0.582,"owgr_rank":58},{"name":"Michael Thorbjornsen","tour":"PGA Tour","dg_rank":69,"dg_index":0.571,"owgr_rank":73},{"name":"Denny McCarthy","tour":"PGA Tour","dg_rank":70,"dg_index":0.556,"owgr_rank":102},{"name":"J.T. Poston","tour":"PGA Tour","dg_rank":71,"dg_index":0.551,"owgr_rank":94},{"name":"Thomas Detry","tour":"LIV Golf","dg_rank":72,"dg_index":0.545,"owgr_rank":66},{"name":"Matt Wallace","tour":"PGA Tour","dg_rank":73,"dg_index":0.533,"owgr_rank":74},{"name":"Dean Burmester","tour":"LIV Golf","dg_rank":74,"dg_index":0.523,"owgr_rank":170},{"name":"Sahith Theegala","tour":"PGA Tour","dg_rank":75,"dg_index":0.518,"owgr_rank":82},{"name":"Sam Stevens","tour":"PGA Tour","dg_rank":76,"dg_index":0.514,"owgr_rank":52},{"name":"Jayden Schaper","tour":"DP World Tour","dg_rank":77,"dg_index":0.503,"owgr_rank":70},{"name":"Branden Grace","tour":"LIV Golf","dg_rank":78,"dg_index":0.491,"owgr_rank":224},{"name":"Andrew Novak","tour":"PGA Tour","dg_rank":79,"dg_index":0.484,"owgr_rank":56},{"name":"Marc Leishman","tour":"LIV Golf","dg_rank":80,"dg_index":0.478,"owgr_rank":208},{"name":"Zach Bauchou","tour":"PGA Tour","dg_rank":81,"dg_index":0.465,"owgr_rank":152},{"name":"Jordan Smith","tour":"PGA Tour","dg_rank":82,"dg_index":0.462,"owgr_rank":68},{"name":"Davis Thompson","tour":"PGA Tour","dg_rank":83,"dg_index":0.461,"owgr_rank":135},{"name":"Angel Ayora","tour":"DP World Tour","dg_rank":84,"dg_index":0.44,"owgr_rank":124},{"name":"Michael Brennan","tour":"PGA Tour","dg_rank":85,"dg_index":0.432,"owgr_rank":54},{"name":"Rico Hoey","tour":"PGA Tour","dg_rank":86,"dg_index":0.425,"owgr_rank":85},{"name":"Dustin Johnson","tour":"LIV Golf","dg_rank":87,"dg_index":0.417,"owgr_rank":291},{"name":"Taylor Pendrith","tour":"PGA Tour","dg_rank":88,"dg_index":0.416,"owgr_rank":92},{"name":"Scott Vincent","tour":"LIV Golf","dg_rank":89,"dg_index":0.408,"owgr_rank":146},{"name":"Max Greyserman","tour":"PGA Tour","dg_rank":90,"dg_index":0.392,"owgr_rank":62},{"name":"Lucas Herbert","tour":"LIV Golf","dg_rank":91,"dg_index":0.371,"owgr_rank":86},{"name":"Casey Jarvis","tour":"DP World Tour","dg_rank":92,"dg_index":0.369,"owgr_rank":76},{"name":"Blades Brown","tour":"Korn Ferry Tour","dg_rank":93,"dg_index":0.365,"owgr_rank":105},{"name":"Oliver Lindell","tour":"DP World Tour","dg_rank":94,"dg_index":0.36,"owgr_rank":163},{"name":"Eugenio Chacarra","tour":"DP World Tour","dg_rank":95,"dg_index":0.357,"owgr_rank":128},{"name":"Sudarshan Yellamaraju","tour":"PGA Tour","dg_rank":96,"dg_index":0.355,"owgr_rank":111},{"name":"Steven Fisk","tour":"PGA Tour","dg_rank":97,"dg_index":0.354,"owgr_rank":114},{"name":"Max Homa","tour":"PGA Tour","dg_rank":98,"dg_index":0.341,"owgr_rank":120},{"name":"Doug Ghim","tour":"PGA Tour","dg_rank":99,"dg_index":0.34,"owgr_rank":178},{"name":"Thorbjorn Olesen","tour":"PGA Tour","dg_rank":100,"dg_index":0.336,"owgr_rank":126},{"name":"Max McGreevy","tour":"PGA Tour","dg_rank":101,"dg_index":0.314,"owgr_rank":97},{"name":"Abraham Ancer","tour":"LIV Golf","dg_rank":102,"dg_index":0.292,"owgr_rank":301},{"name":"Cameron Smith","tour":"LIV Golf","dg_rank":103,"dg_index":0.282,"owgr_rank":151},{"name":"Jose Luis Ballester","tour":"LIV Golf","dg_rank":104,"dg_index":0.281,"owgr_rank":123},{"name":"Ricky Castillo","tour":"PGA Tour","dg_rank":105,"dg_index":0.277,"owgr_rank":95},{"name":"Victor Perez","tour":"LIV Golf","dg_rank":106,"dg_index":0.275,"owgr_rank":206},{"name":"Patrick Rodgers","tour":"PGA Tour","dg_rank":107,"dg_index":0.275,"owgr_rank":79},{"name":"Sebastian Munoz","tour":"LIV Golf","dg_rank":108,"dg_index":0.272,"owgr_rank":null},{"name":"Chris Kirk","tour":"PGA Tour","dg_rank":109,"dg_index":0.271,"owgr_rank":103},{"name":"Charles Howell III","tour":"LIV Golf","dg_rank":110,"dg_index":0.269,"owgr_rank":null},{"name":"Stephan Jaeger","tour":"PGA Tour","dg_rank":111,"dg_index":0.258,"owgr_rank":96},{"name":"Sungjae Im","tour":"PGA Tour","dg_rank":112,"dg_index":0.247,"owgr_rank":72},{"name":"Kota Kaneko","tour":"DP World Tour","dg_rank":113,"dg_index":0.246,"owgr_rank":101},{"name":"Rasmus Hojgaard","tour":"PGA Tour","dg_rank":114,"dg_index":0.24,"owgr_rank":71},{"name":"Rasmus Neergaard-Petersen","tour":"PGA Tour","dg_rank":115,"dg_index":0.228,"owgr_rank":80},{"name":"Taylor Moore","tour":"PGA Tour","dg_rank":116,"dg_index":0.223,"owgr_rank":146},{"name":"Cooper Dossey","tour":"Korn Ferry Tour","dg_rank":117,"dg_index":0.221,"owgr_rank":226},{"name":"Mackenzie Hughes","tour":"PGA Tour","dg_rank":118,"dg_index":0.22,"owgr_rank":136},{"name":"Matti Schmid","tour":"PGA Tour","dg_rank":119,"dg_index":0.217,"owgr_rank":67},{"name":"Tom Kim","tour":"PGA Tour","dg_rank":120,"dg_index":0.214,"owgr_rank":150},{"name":"Nico Echavarria","tour":"PGA Tour","dg_rank":121,"dg_index":0.212,"owgr_rank":48},{"name":"Jacob Skov Olesen","tour":"DP World Tour","dg_rank":122,"dg_index":0.209,"owgr_rank":125},{"name":"Tony Finau","tour":"PGA Tour","dg_rank":123,"dg_index":0.202,"owgr_rank":112},{"name":"Austin Eckroat","tour":"PGA Tour","dg_rank":124,"dg_index":0.201,"owgr_rank":174},{"name":"Will Zalatoris","tour":"PGA Tour","dg_rank":125,"dg_index":0.191,"owgr_rank":369},{"name":"Adrien Dumont De Chassart","tour":"PGA Tour","dg_rank":126,"dg_index":0.173,"owgr_rank":165},{"name":"Mikael Lindberg","tour":"DP World Tour","dg_rank":127,"dg_index":0.171,"owgr_rank":131},{"name":"Austin Smotherman","tour":"PGA Tour","dg_rank":128,"dg_index":0.152,"owgr_rank":91},{"name":"Ewen Ferguson","tour":"DP World Tour","dg_rank":129,"dg_index":0.149,"owgr_rank":175},{"name":"Haotong Li","tour":"PGA Tour","dg_rank":130,"dg_index":0.142,"owgr_rank":87},{"name":"Johnny Keefer","tour":"PGA Tour","dg_rank":131,"dg_index":0.14,"owgr_rank":75},{"name":"Tom McKibbin","tour":"LIV Golf","dg_rank":132,"dg_index":0.139,"owgr_rank":130},{"name":"Talor Gooch","tour":"LIV Golf","dg_rank":133,"dg_index":0.136,"owgr_rank":341},{"name":"Sami Valimaki","tour":"PGA Tour","dg_rank":134,"dg_index":0.134,"owgr_rank":63},{"name":"Seamus Power","tour":"PGA Tour","dg_rank":135,"dg_index":0.133,"owgr_rank":185},{"name":"Sergio Garcia","tour":"LIV Golf","dg_rank":136,"dg_index":0.115,"owgr_rank":195},{"name":"Carlos Ortiz","tour":"LIV Golf","dg_rank":137,"dg_index":0.109,"owgr_rank":183},{"name":"S.H. Kim","tour":"Other Tours","dg_rank":138,"dg_index":0.107,"owgr_rank":148},{"name":"John Parry","tour":"PGA Tour","dg_rank":139,"dg_index":0.102,"owgr_rank":98},{"name":"Antoine Rozner","tour":"DP World Tour","dg_rank":140,"dg_index":0.095,"owgr_rank":191},{"name":"Stewart Cink","tour":"PGA TOUR Champions","dg_rank":141,"dg_index":0.092,"owgr_rank":null},{"name":"Thomas Pieters","tour":"LIV Golf","dg_rank":142,"dg_index":0.086,"owgr_rank":254},{"name":"Ben James","tour":"Amateur Events","dg_rank":143,"dg_index":0.082,"owgr_rank":null},{"name":"Brandt Snedeker","tour":"PGA Tour","dg_rank":144,"dg_index":0.079,"owgr_rank":127},{"name":"Chad Ramey","tour":"PGA Tour","dg_rank":145,"dg_index":0.068,"owgr_rank":167},{"name":"William Mouw","tour":"PGA Tour","dg_rank":146,"dg_index":0.067,"owgr_rank":142},{"name":"Zecheng Dou","tour":"PGA Tour","dg_rank":147,"dg_index":0.067,"owgr_rank":190},{"name":"Sam Ryder","tour":"PGA Tour","dg_rank":148,"dg_index":0.058,"owgr_rank":220},{"name":"Beau Hossler","tour":"PGA Tour","dg_rank":149,"dg_index":0.056,"owgr_rank":158},{"name":"Jorge Campillo","tour":"DP World Tour","dg_rank":150,"dg_index":0.055,"owgr_rank":162},{"name":"Marcus Armitage","tour":"DP World Tour","dg_rank":151,"dg_index":0.054,"owgr_rank":156},{"name":"Aldrich Potgieter","tour":"PGA Tour","dg_rank":152,"dg_index":0.053,"owgr_rank":77},{"name":"Lucas Glover","tour":"PGA Tour","dg_rank":153,"dg_index":0.052,"owgr_rank":104},{"name":"Matt Kuchar","tour":"PGA Tour","dg_rank":154,"dg_index":0.052,"owgr_rank":179},{"name":"Kevin Yu","tour":"PGA Tour","dg_rank":155,"dg_index":0.05,"owgr_rank":121},{"name":"Marco Penge","tour":"PGA Tour","dg_rank":156,"dg_index":0.04,"owgr_rank":46},{"name":"Lee Hodges","tour":"PGA Tour","dg_rank":157,"dg_index":0.035,"owgr_rank":153},{"name":"Michael Johnson","tour":"Korn Ferry Tour","dg_rank":158,"dg_index":0.034,"owgr_rank":251},{"name":"Bernd Wiesberger","tour":"DP World Tour","dg_rank":159,"dg_index":0.031,"owgr_rank":188},{"name":"Martin Couvra","tour":"DP World Tour","dg_rank":160,"dg_index":0.026,"owgr_rank":149},{"name":"Ugo Coussaud","tour":"DP World Tour","dg_rank":161,"dg_index":0.011,"owgr_rank":212},{"name":"Louis Oosthuizen","tour":"LIV Golf","dg_rank":162,"dg_index":0.008,"owgr_rank":376},{"name":"Kevin Roy","tour":"PGA Tour","dg_rank":163,"dg_index":0.005,"owgr_rank":129},{"name":"Vince Whaley","tour":"PGA Tour","dg_rank":164,"dg_index":-0.002,"owgr_rank":155},{"name":"Hennie Du Plessis","tour":"DP World Tour","dg_rank":165,"dg_index":-0.007,"owgr_rank":182},{"name":"Dan Bradbury","tour":"DP World Tour","dg_rank":166,"dg_index":-0.009,"owgr_rank":138},{"name":"Nathan Kimsey","tour":"DP World Tour","dg_rank":167,"dg_index":-0.016,"owgr_rank":210},{"name":"Chandler Blanchet","tour":"PGA Tour","dg_rank":168,"dg_index":-0.03,"owgr_rank":110},{"name":"Calum Hill","tour":"DP World Tour","dg_rank":169,"dg_index":-0.032,"owgr_rank":143},{"name":"A.J. Ewart","tour":"PGA Tour","dg_rank":170,"dg_index":-0.036,"owgr_rank":192},{"name":"Billy Horschel","tour":"PGA Tour","dg_rank":171,"dg_index":-0.038,"owgr_rank":140},{"name":"Zac Blair","tour":"PGA Tour","dg_rank":172,"dg_index":-0.038,"owgr_rank":201},{"name":"Mark Hubbard","tour":"PGA Tour","dg_rank":173,"dg_index":-0.04,"owgr_rank":116},{"name":"Doc Redman","tour":"Korn Ferry Tour","dg_rank":174,"dg_index":-0.059,"owgr_rank":115},{"name":"Zach Johnson","tour":"PGA Tour","dg_rank":175,"dg_index":-0.059,"owgr_rank":389},{"name":"JC Ritchie","tour":"DP World Tour","dg_rank":176,"dg_index":-0.105,"owgr_rank":139},{"name":"Bronson Burgoon","tour":"Korn Ferry Tour","dg_rank":177,"dg_index":-0.108,"owgr_rank":312},{"name":"Garrick Higgo","tour":"PGA Tour","dg_rank":178,"dg_index":-0.108,"owgr_rank":89},{"name":"Kris Ventura","tour":"PGA Tour","dg_rank":179,"dg_index":-0.114,"owgr_rank":286},{"name":"Paul Casey","tour":"LIV Golf","dg_rank":180,"dg_index":-0.115,"owgr_rank":null},{"name":"Lanto Griffin","tour":"PGA Tour","dg_rank":181,"dg_index":-0.115,"owgr_rank":211},{"name":"Wenyi Ding","tour":"DP World Tour","dg_rank":182,"dg_index":-0.116,"owgr_rank":193},{"name":"Ian Gilligan","tour":"Korn Ferry Tour","dg_rank":183,"dg_index":-0.121,"owgr_rank":234},{"name":"Francesco Laporta","tour":"DP World Tour","dg_rank":184,"dg_index":-0.134,"owgr_rank":197},{"name":"Takumi Kanaya","tour":"PGA Tour","dg_rank":185,"dg_index":-0.139,"owgr_rank":154},{"name":"Tom Hoge","tour":"PGA Tour","dg_rank":186,"dg_index":-0.141,"owgr_rank":106},{"name":"Sandy Scott","tour":"Korn Ferry Tour","dg_rank":187,"dg_index":-0.144,"owgr_rank":275},{"name":"Cole Sherwood","tour":"Korn Ferry Tour","dg_rank":188,"dg_index":-0.145,"owgr_rank":213},{"name":"Keita Nakajima","tour":"PGA Tour","dg_rank":189,"dg_index":-0.149,"owgr_rank":134},{"name":"Jackson Suber","tour":"PGA Tour","dg_rank":190,"dg_index":-0.155,"owgr_rank":166},{"name":"Emiliano Grillo","tour":"PGA Tour","dg_rank":191,"dg_index":-0.163,"owgr_rank":122},{"name":"David Lipsky","tour":"PGA Tour","dg_rank":192,"dg_index":-0.165,"owgr_rank":100},{"name":"Davis Shore","tour":"Korn Ferry Tour","dg_rank":193,"dg_index":-0.167,"owgr_rank":340},{"name":"Dan Brown","tour":"PGA Tour","dg_rank":194,"dg_index":-0.167,"owgr_rank":113},{"name":"Webb Simpson","tour":"PGA Tour","dg_rank":195,"dg_index":-0.181,"owgr_rank":446},{"name":"Byeong Hun An","tour":"LIV Golf","dg_rank":196,"dg_index":-0.191,"owgr_rank":173},{"name":"David Ford","tour":"PGA Tour","dg_rank":197,"dg_index":-0.196,"owgr_rank":279},{"name":"Caleb VanArragon","tour":"Korn Ferry Tour","dg_rank":198,"dg_index":-0.2,"owgr_rank":261},{"name":"Jhonattan Vegas","tour":"PGA Tour","dg_rank":199,"dg_index":-0.201,"owgr_rank":132},{"name":"Matthieu Pavon","tour":"PGA Tour","dg_rank":200,"dg_index":-0.206,"owgr_rank":268},{"name":"Cameron Tringale","tour":"LIV Golf","dg_rank":201,"dg_index":-0.21,"owgr_rank":null},{"name":"Tom Vaillant","tour":"DP World Tour","dg_rank":202,"dg_index":-0.211,"owgr_rank":300},{"name":"Ian Holt","tour":"Korn Ferry Tour","dg_rank":203,"dg_index":-0.214,"owgr_rank":133},{"name":"Ryosuke Kinoshita","tour":"Other Tours","dg_rank":204,"dg_index":-0.222,"owgr_rank":277},{"name":"Julien Guerrier","tour":"DP World Tour","dg_rank":205,"dg_index":-0.227,"owgr_rank":181},{"name":"Richard Lee","tour":"LIV Golf","dg_rank":206,"dg_index":-0.234,"owgr_rank":184},{"name":"Patrick Fishburn","tour":"PGA Tour","dg_rank":207,"dg_index":-0.241,"owgr_rank":199},{"name":"Alejandro Del Rey","tour":"DP World Tour","dg_rank":208,"dg_index":-0.242,"owgr_rank":232},{"name":"Eddie Pepperell","tour":"DP World Tour","dg_rank":209,"dg_index":-0.248,"owgr_rank":373},{"name":"Younghan Song","tour":"Other Tours","dg_rank":210,"dg_index":-0.258,"owgr_rank":334},{"name":"Adrien Saddier","tour":"PGA Tour","dg_rank":211,"dg_index":-0.259,"owgr_rank":109},{"name":"Rafa Cabrera Bello","tour":"DP World Tour","dg_rank":212,"dg_index":-0.262,"owgr_rank":217},{"name":"Darius Van Driel","tour":"DP World Tour","dg_rank":213,"dg_index":-0.265,"owgr_rank":216},{"name":"Caleb Surratt","tour":"LIV Golf","dg_rank":214,"dg_index":-0.266,"owgr_rank":271},{"name":"John Pak","tour":"Korn Ferry Tour","dg_rank":215,"dg_index":-0.282,"owgr_rank":227},{"name":"Preston Stout","tour":"Amateur Events","dg_rank":216,"dg_index":-0.284,"owgr_rank":null},{"name":"Gregorio De Leo","tour":"DP World Tour","dg_rank":217,"dg_index":-0.293,"owgr_rank":267},{"name":"Adam Svensson","tour":"PGA Tour","dg_rank":218,"dg_index":-0.295,"owgr_rank":412},{"name":"Chan Kim","tour":"PGA Tour","dg_rank":219,"dg_index":-0.298,"owgr_rank":278},{"name":"Ben Taylor","tour":"Korn Ferry Tour","dg_rank":220,"dg_index":-0.298,"owgr_rank":351},{"name":"Karl Vilips","tour":"PGA Tour","dg_rank":221,"dg_index":-0.305,"owgr_rank":185},{"name":"Ben Kohles","tour":"PGA Tour","dg_rank":222,"dg_index":-0.307,"owgr_rank":299},{"name":"Matthew Jordan","tour":"DP World Tour","dg_rank":223,"dg_index":-0.31,"owgr_rank":263},{"name":"Dylan Menante","tour":"Korn Ferry Tour","dg_rank":224,"dg_index":-0.311,"owgr_rank":209},{"name":"S.Y. Noh","tour":"Korn Ferry Tour","dg_rank":225,"dg_index":-0.316,"owgr_rank":329},{"name":"Jesper Svensson","tour":"PGA Tour","dg_rank":226,"dg_index":-0.32,"owgr_rank":194},{"name":"Charl Schwartzel","tour":"LIV Golf","dg_rank":227,"dg_index":-0.329,"owgr_rank":null},{"name":"Joel Dahmen","tour":"PGA Tour","dg_rank":228,"dg_index":-0.33,"owgr_rank":200},{"name":"Joseph Bramlett","tour":"Korn Ferry Tour","dg_rank":229,"dg_index":-0.331,"owgr_rank":297},{"name":"Mitchell Meissner","tour":"Korn Ferry Tour","dg_rank":230,"dg_index":-0.331,"owgr_rank":270},{"name":"Andrea Pavan","tour":"DP World Tour","dg_rank":231,"dg_index":-0.338,"owgr_rank":326},{"name":"Hayden Springer","tour":"PGA Tour","dg_rank":232,"dg_index":-0.34,"owgr_rank":264},{"name":"Harold Varner III","tour":"LIV Golf","dg_rank":233,"dg_index":-0.34,"owgr_rank":468},{"name":"Trace Crowe","tour":"Korn Ferry Tour","dg_rank":234,"dg_index":-0.343,"owgr_rank":219},{"name":"Laurie Canter","tour":"LIV Golf","dg_rank":235,"dg_index":-0.348,"owgr_rank":141},{"name":"Andy Sullivan","tour":"DP World Tour","dg_rank":236,"dg_index":-0.353,"owgr_rank":117},{"name":"Paul Peterson","tour":"PGA Tour","dg_rank":237,"dg_index":-0.354,"owgr_rank":235},{"name":"Brendan Steele","tour":"LIV Golf","dg_rank":238,"dg_index":-0.357,"owgr_rank":null},{"name":"Francesco Molinari","tour":"DP World Tour","dg_rank":239,"dg_index":-0.365,"owgr_rank":288},{"name":"Erik Van Rooyen","tour":"PGA Tour","dg_rank":240,"dg_index":-0.366,"owgr_rank":177},{"name":"Richard Bland","tour":"LIV Golf","dg_rank":241,"dg_index":-0.367,"owgr_rank":null},{"name":"Bubba Watson","tour":"LIV Golf","dg_rank":242,"dg_index":-0.368,"owgr_rank":null},{"name":"Christian Maas","tour":"Amateur Events","dg_rank":243,"dg_index":-0.369,"owgr_rank":null},{"name":"Grant Forrest","tour":"DP World Tour","dg_rank":244,"dg_index":-0.377,"owgr_rank":189},{"name":"Davis Lamb","tour":"Korn Ferry Tour","dg_rank":245,"dg_index":-0.381,"owgr_rank":160},{"name":"Alistair Docherty","tour":"Korn Ferry Tour","dg_rank":246,"dg_index":-0.383,"owgr_rank":198},{"name":"Davis Bryant","tour":"DP World Tour","dg_rank":247,"dg_index":-0.387,"owgr_rank":157},{"name":"Elvis Smylie","tour":"LIV Golf","dg_rank":248,"dg_index":-0.407,"owgr_rank":108},{"name":"Hank Lebioda","tour":"PGA Tour","dg_rank":249,"dg_index":-0.413,"owgr_rank":225},{"name":"Ricardo Gouveia","tour":"DP World Tour","dg_rank":250,"dg_index":-0.426,"owgr_rank":218},{"name":"Thriston Lawrence","tour":"DP World Tour","dg_rank":251,"dg_index":-0.432,"owgr_rank":144},{"name":"Carson Young","tour":"PGA Tour","dg_rank":252,"dg_index":-0.436,"owgr_rank":180},{"name":"Marcel Schneider","tour":"DP World Tour","dg_rank":253,"dg_index":-0.441,"owgr_rank":285},{"name":"Kazuma Kobori","tour":"DP World Tour","dg_rank":254,"dg_index":-0.442,"owgr_rank":202},{"name":"Jeremy Gandon","tour":"Korn Ferry Tour","dg_rank":255,"dg_index":-0.447,"owgr_rank":171},{"name":"Greyson Sigg","tour":"PGA Tour","dg_rank":256,"dg_index":-0.449,"owgr_rank":311},{"name":"Shaun Norris","tour":"DP World Tour","dg_rank":257,"dg_index":-0.458,"owgr_rank":83},{"name":"Emilio Gonzalez","tour":"Korn Ferry Tour","dg_rank":258,"dg_index":-0.46,"owgr_rank":203},{"name":"Matteo Manassero","tour":"DP World Tour","dg_rank":259,"dg_index":-0.466,"owgr_rank":305},{"name":"Trent Phillips","tour":"Korn Ferry Tour","dg_rank":260,"dg_index":-0.474,"owgr_rank":284},{"name":"Manuel Elvira","tour":"DP World Tour","dg_rank":261,"dg_index":-0.485,"owgr_rank":276},{"name":"David Skinns","tour":"PGA Tour","dg_rank":262,"dg_index":-0.486,"owgr_rank":274},{"name":"Adrian Otaegui","tour":"DP World Tour","dg_rank":263,"dg_index":-0.488,"owgr_rank":237},{"name":"Joost Luiten","tour":"DP World Tour","dg_rank":264,"dg_index":-0.489,"owgr_rank":215},{"name":"Taiga Semikawa","tour":"Other Tours","dg_rank":265,"dg_index":-0.491,"owgr_rank":309},{"name":"Neal Shipley","tour":"PGA Tour","dg_rank":266,"dg_index":-0.493,"owgr_rank":187},{"name":"Trav Smyth","tour":"Other Tours","dg_rank":267,"dg_index":-0.497,"owgr_rank":137},{"name":"Rick Lamb","tour":"Korn Ferry Tour","dg_rank":268,"dg_index":-0.501,"owgr_rank":410},{"name":"MJ Daffue","tour":"DP World Tour","dg_rank":269,"dg_index":-0.503,"owgr_rank":220},{"name":"Alvaro Ortiz","tour":"Korn Ferry Tour","dg_rank":270,"dg_index":-0.513,"owgr_rank":228},{"name":"Pontus Nyholm","tour":"PGA Tour","dg_rank":271,"dg_index":-0.517,"owgr_rank":257},{"name":"Jason Kokrak","tour":"LIV Golf","dg_rank":272,"dg_index":-0.519,"owgr_rank":null},{"name":"Luke Clanton","tour":"PGA Tour","dg_rank":273,"dg_index":-0.52,"owgr_rank":241},{"name":"Hunter Eichhorn","tour":"Korn Ferry Tour","dg_rank":274,"dg_index":-0.521,"owgr_rank":256},{"name":"Miles Russell","tour":"Amateur Events","dg_rank":275,"dg_index":-0.523,"owgr_rank":null},{"name":"Dylan Wu","tour":"PGA Tour","dg_rank":276,"dg_index":-0.525,"owgr_rank":383},{"name":"Jason Scrivener","tour":"DP World Tour","dg_rank":277,"dg_index":-0.529,"owgr_rank":331},{"name":"Brandon Robinson Thompson","tour":"DP World Tour","dg_rank":278,"dg_index":-0.53,"owgr_rank":252},{"name":"Ian Snyman","tour":"Other Tours","dg_rank":279,"dg_index":-0.536,"owgr_rank":296},{"name":"Andrew Johnston","tour":"DP World Tour","dg_rank":280,"dg_index":-0.541,"owgr_rank":null},{"name":"Ryo Ishikawa","tour":"Korn Ferry Tour","dg_rank":281,"dg_index":-0.542,"owgr_rank":359},{"name":"Cole Hammer","tour":"Korn Ferry Tour","dg_rank":282,"dg_index":-0.543,"owgr_rank":363},{"name":"Paul Waring","tour":"DP World Tour","dg_rank":283,"dg_index":-0.544,"owgr_rank":307},{"name":"Yusaku Hosono","tour":"Other Tours","dg_rank":284,"dg_index":-0.544,"owgr_rank":295},{"name":"Ben Silverman","tour":"PGA Tour","dg_rank":285,"dg_index":-0.548,"owgr_rank":253},{"name":"John VanDerLaan","tour":"PGA Tour","dg_rank":286,"dg_index":-0.552,"owgr_rank":290},{"name":"Doyeob Mun","tour":"Other Tours","dg_rank":287,"dg_index":-0.553,"owgr_rank":207},{"name":"Ren Yonezawa","tour":"Other Tours","dg_rank":288,"dg_index":-0.561,"owgr_rank":231},{"name":"Daniel Van Tonder","tour":"DP World Tour","dg_rank":289,"dg_index":-0.563,"owgr_rank":222},{"name":"Ignacio Elvira Mijares","tour":"DP World Tour","dg_rank":290,"dg_index":-0.563,"owgr_rank":145},{"name":"Frederic LaCroix","tour":"DP World Tour","dg_rank":291,"dg_index":-0.564,"owgr_rank":243},{"name":"Trevor Cone","tour":"Korn Ferry Tour","dg_rank":292,"dg_index":-0.57,"owgr_rank":298},{"name":"Ross Steelman","tour":"Korn Ferry Tour","dg_rank":293,"dg_index":-0.576,"owgr_rank":245},{"name":"Taylor Montgomery","tour":"Korn Ferry Tour","dg_rank":294,"dg_index":-0.578,"owgr_rank":214},{"name":"Brandon Stone","tour":"DP World Tour","dg_rank":295,"dg_index":-0.58,"owgr_rank":374},{"name":"Brice Garnett","tour":"PGA Tour","dg_rank":296,"dg_index":-0.585,"owgr_rank":358},{"name":"Peter Uihlein","tour":"LIV Golf","dg_rank":297,"dg_index":-0.586,"owgr_rank":172},{"name":"Noah Goodwin","tour":"PGA Tour","dg_rank":298,"dg_index":-0.587,"owgr_rank":336},{"name":"Adam Hadwin","tour":"PGA Tour","dg_rank":299,"dg_index":-0.593,"owgr_rank":273},{"name":"Matt Atkins","tour":"Korn Ferry Tour","dg_rank":300,"dg_index":-0.596,"owgr_rank":494},{"name":"Austen Truslow","tour":"Other Tours","dg_rank":301,"dg_index":-0.599,"owgr_rank":367},{"name":"Quade Cummins","tour":"PGA Tour","dg_rank":302,"dg_index":-0.603,"owgr_rank":380},{"name":"Steven Alker","tour":"PGA TOUR Champions","dg_rank":303,"dg_index":-0.603,"owgr_rank":null},{"name":"Hayden Buckley","tour":"Korn Ferry Tour","dg_rank":304,"dg_index":-0.605,"owgr_rank":478},{"name":"Jorge Fernandez Valdes","tour":"Korn Ferry Tour","dg_rank":305,"dg_index":-0.61,"owgr_rank":258},{"name":"Peter Malnati","tour":"PGA Tour","dg_rank":306,"dg_index":-0.613,"owgr_rank":null},{"name":"Yanhan Zhou","tour":"DP World Tour","dg_rank":307,"dg_index":-0.615,"owgr_rank":229},{"name":"Adrian Meronk","tour":"LIV Golf","dg_rank":308,"dg_index":-0.617,"owgr_rank":null},{"name":"David Ravetto","tour":"DP World Tour","dg_rank":309,"dg_index":-0.627,"owgr_rank":399},{"name":"Jeunghun Wang","tour":"Other Tours","dg_rank":310,"dg_index":-0.629,"owgr_rank":365},{"name":"Jaco Prinsloo","tour":"Other Tours","dg_rank":311,"dg_index":-0.63,"owgr_rank":null},{"name":"Oihan Guillamoundeguy","tour":"DP World Tour","dg_rank":312,"dg_index":-0.631,"owgr_rank":265},{"name":"Kevin Streelman","tour":"PGA Tour","dg_rank":313,"dg_index":-0.632,"owgr_rank":393},{"name":"Anirban Lahiri","tour":"LIV Golf","dg_rank":314,"dg_index":-0.633,"owgr_rank":null},{"name":"Richard Mansell","tour":"DP World Tour","dg_rank":315,"dg_index":-0.641,"owgr_rank":230},{"name":"Todd Clements","tour":"DP World Tour","dg_rank":316,"dg_index":-0.642,"owgr_rank":248},{"name":"Ben Schmidt","tour":"DP World Tour","dg_rank":317,"dg_index":-0.643,"owgr_rank":314},{"name":"Mason Andersen","tour":"Korn Ferry Tour","dg_rank":318,"dg_index":-0.644,"owgr_rank":441},{"name":"Nicolo Galletti","tour":"Korn Ferry Tour","dg_rank":319,"dg_index":-0.647,"owgr_rank":313},{"name":"Ryutaro Nagano","tour":"Other Tours","dg_rank":320,"dg_index":-0.648,"owgr_rank":477},{"name":"Nick Dunlap","tour":"PGA Tour","dg_rank":321,"dg_index":-0.65,"owgr_rank":318},{"name":"Chandler Phillips","tour":"PGA Tour","dg_rank":322,"dg_index":-0.652,"owgr_rank":176},{"name":"Shugo Imahira","tour":"Other Tours","dg_rank":323,"dg_index":-0.652,"owgr_rank":330},{"name":"Jacques Kruyswijk","tour":"DP World Tour","dg_rank":324,"dg_index":-0.655,"owgr_rank":223},{"name":"Isaiah Salinda","tour":"PGA Tour","dg_rank":325,"dg_index":-0.658,"owgr_rank":289},{"name":"Thomas Rosenmueller","tour":"PGA Tour","dg_rank":326,"dg_index":-0.665,"owgr_rank":424},{"name":"Roger Sloan","tour":"Korn Ferry Tour","dg_rank":327,"dg_index":-0.666,"owgr_rank":388},{"name":"James Nicholas","tour":"Korn Ferry Tour","dg_rank":328,"dg_index":-0.671,"owgr_rank":282},{"name":"Marcus Kinhult","tour":"DP World Tour","dg_rank":329,"dg_index":-0.676,"owgr_rank":344},{"name":"Jeffrey Kang","tour":"PGA Tour","dg_rank":330,"dg_index":-0.677,"owgr_rank":249},{"name":"Guido Migliozzi","tour":"DP World Tour","dg_rank":331,"dg_index":-0.682,"owgr_rank":242},{"name":"Kensei Hirata","tour":"PGA Tour","dg_rank":332,"dg_index":-0.684,"owgr_rank":255},{"name":"Thomas Ponder","tour":"Other Tours","dg_rank":333,"dg_index":-0.686,"owgr_rank":null},{"name":"Andreas Halvorsen","tour":"DP World Tour","dg_rank":334,"dg_index":-0.692,"owgr_rank":402},{"name":"Romain Langasque","tour":"DP World Tour","dg_rank":335,"dg_index":-0.695,"owgr_rank":326},{"name":"Justin Lower","tour":"PGA Tour","dg_rank":336,"dg_index":-0.695,"owgr_rank":239},{"name":"Kazuki Higa","tour":"Other Tours","dg_rank":337,"dg_index":-0.698,"owgr_rank":159},{"name":"Danny Walker","tour":"PGA Tour","dg_rank":338,"dg_index":-0.709,"owgr_rank":240},{"name":"Jeff Winther","tour":"DP World Tour","dg_rank":339,"dg_index":-0.712,"owgr_rank":328},{"name":"Kiradech Aphibarnrat","tour":"DP World Tour","dg_rank":340,"dg_index":-0.715,"owgr_rank":345},{"name":"Davis Chatfield","tour":"PGA Tour","dg_rank":341,"dg_index":-0.719,"owgr_rank":303},{"name":"Chez Reavie","tour":"Korn Ferry Tour","dg_rank":342,"dg_index":-0.728,"owgr_rank":null},{"name":"Nick Voke","tour":"Other Tours","dg_rank":343,"dg_index":-0.731,"owgr_rank":354},{"name":"Joe Dean","tour":"DP World Tour","dg_rank":344,"dg_index":-0.733,"owgr_rank":332},{"name":"Kihei Akina","tour":"Amateur Events","dg_rank":345,"dg_index":-0.735,"owgr_rank":null},{"name":"Richie Ramsay","tour":"DP World Tour","dg_rank":346,"dg_index":-0.735,"owgr_rank":441},{"name":"Yuta Sugiura","tour":"Korn Ferry Tour","dg_rank":347,"dg_index":-0.739,"owgr_rank":304},{"name":"Ben Carr","tour":"Korn Ferry Tour","dg_rank":348,"dg_index":-0.745,"owgr_rank":466},{"name":"Kieran Vincent","tour":"Other Tours","dg_rank":349,"dg_index":-0.746,"owgr_rank":356},{"name":"John Marshall Butler","tour":"Korn Ferry Tour","dg_rank":350,"dg_index":-0.747,"owgr_rank":387},{"name":"S.T. Lee","tour":"Korn Ferry Tour","dg_rank":351,"dg_index":-0.752,"owgr_rank":310},{"name":"Martin Kaymer","tour":"LIV Golf","dg_rank":352,"dg_index":-0.752,"owgr_rank":null},{"name":"Alexander Levy","tour":"DP World Tour","dg_rank":353,"dg_index":-0.754,"owgr_rank":480},{"name":"Freddy Schott","tour":"DP World Tour","dg_rank":354,"dg_index":-0.755,"owgr_rank":205},{"name":"Brian Campbell","tour":"PGA Tour","dg_rank":355,"dg_index":-0.756,"owgr_rank":118},{"name":"Daniel Da Costa Rodrigues","tour":"DP World Tour","dg_rank":356,"dg_index":-0.759,"owgr_rank":272},{"name":"Cameron Champ","tour":"PGA Tour","dg_rank":357,"dg_index":-0.77,"owgr_rank":338},{"name":"Rikuya Hoshino","tour":"DP World Tour","dg_rank":358,"dg_index":-0.771,"owgr_rank":433},{"name":"Graeme McDowell","tour":"LIV Golf","dg_rank":359,"dg_index":-0.776,"owgr_rank":null},{"name":"Anthony Kim","tour":"LIV Golf","dg_rank":360,"dg_index":-0.777,"owgr_rank":196},{"name":"Yuto Katsuragawa","tour":"DP World Tour","dg_rank":361,"dg_index":-0.778,"owgr_rank":377},{"name":"Justin Suh","tour":"Korn Ferry Tour","dg_rank":362,"dg_index":-0.782,"owgr_rank":381},{"name":"Jinichiro Kozuma","tour":"Other Tours","dg_rank":363,"dg_index":-0.784,"owgr_rank":null},{"name":"Mahanth Chirravuri","tour":"Amateur Events","dg_rank":364,"dg_index":-0.789,"owgr_rank":null},{"name":"Dylan Frittelli","tour":"DP World Tour","dg_rank":365,"dg_index":-0.791,"owgr_rank":444},{"name":"Ian Poulter","tour":"LIV Golf","dg_rank":366,"dg_index":-0.793,"owgr_rank":null},{"name":"Lee Westwood","tour":"LIV Golf","dg_rank":367,"dg_index":-0.794,"owgr_rank":474},{"name":"Taihei Sato","tour":"Other Tours","dg_rank":368,"dg_index":-0.799,"owgr_rank":422},{"name":"Joakim Lagergren","tour":"DP World Tour","dg_rank":369,"dg_index":-0.807,"owgr_rank":169},{"name":"Nick Gabrelcik","tour":"Korn Ferry Tour","dg_rank":370,"dg_index":-0.809,"owgr_rank":452},{"name":"Russell Knox","tour":"Korn Ferry Tour","dg_rank":371,"dg_index":-0.816,"owgr_rank":386},{"name":"Richard Sterne","tour":"DP World Tour","dg_rank":372,"dg_index":-0.82,"owgr_rank":119},{"name":"Jazz Janewattananond","tour":"Other Tours","dg_rank":373,"dg_index":-0.82,"owgr_rank":396},{"name":"Maximilian Steinlechner","tour":"DP World Tour","dg_rank":374,"dg_index":-0.82,"owgr_rank":259},{"name":"Austin Hitt","tour":"Korn Ferry Tour","dg_rank":375,"dg_index":-0.824,"owgr_rank":375},{"name":"Hugo Townsend","tour":"DP World Tour","dg_rank":376,"dg_index":-0.825,"owgr_rank":337},{"name":"Curtis Luck","tour":"Other Tours","dg_rank":377,"dg_index":-0.825,"owgr_rank":null},{"name":"Christo Lamprecht","tour":"PGA Tour","dg_rank":378,"dg_index":-0.831,"owgr_rank":244},{"name":"Travis Trace","tour":"Korn Ferry Tour","dg_rank":379,"dg_index":-0.833,"owgr_rank":null},{"name":"Mikumu Horikawa","tour":"Other Tours","dg_rank":380,"dg_index":-0.837,"owgr_rank":287},{"name":"Tyler Duncan","tour":"Korn Ferry Tour","dg_rank":381,"dg_index":-0.839,"owgr_rank":496},{"name":"Zander Lombard","tour":"DP World Tour","dg_rank":382,"dg_index":-0.842,"owgr_rank":392},{"name":"Shad Tuten","tour":"Korn Ferry Tour","dg_rank":383,"dg_index":-0.848,"owgr_rank":425},{"name":"Nick Hardy","tour":"PGA Tour","dg_rank":384,"dg_index":-0.848,"owgr_rank":null},{"name":"Fabian Gomez","tour":"Korn Ferry Tour","dg_rank":385,"dg_index":-0.852,"owgr_rank":null},{"name":"Tomoyo Ikemura","tour":"Other Tours","dg_rank":386,"dg_index":-0.852,"owgr_rank":308},{"name":"Joel Girrbach","tour":"DP World Tour","dg_rank":387,"dg_index":-0.857,"owgr_rank":302},{"name":"Trey Mullinax","tour":"PGA Tour","dg_rank":388,"dg_index":-0.86,"owgr_rank":456},{"name":"Sadom Kaewkanjana","tour":"DP World Tour","dg_rank":389,"dg_index":-0.86,"owgr_rank":317},{"name":"Camilo Villegas","tour":"PGA Tour","dg_rank":390,"dg_index":-0.868,"owgr_rank":455},{"name":"Austin Bautista","tour":"Other Tours","dg_rank":391,"dg_index":-0.869,"owgr_rank":385},{"name":"Henrik Norlander","tour":"PGA Tour","dg_rank":392,"dg_index":-0.874,"owgr_rank":397},{"name":"Sam Bairstow","tour":"DP World Tour","dg_rank":393,"dg_index":-0.874,"owgr_rank":368},{"name":"William Sides","tour":"Amateur Events","dg_rank":394,"dg_index":-0.875,"owgr_rank":null},{"name":"Ashun Wu","tour":"DP World Tour","dg_rank":395,"dg_index":-0.88,"owgr_rank":360},{"name":"Niklas Norgaard","tour":"DP World Tour","dg_rank":396,"dg_index":-0.88,"owgr_rank":266},{"name":"Pablo Ereno Perez","tour":"Challenge Tour","dg_rank":397,"dg_index":-0.886,"owgr_rank":347},{"name":"Charley Hoffman","tour":"PGA Tour","dg_rank":398,"dg_index":-0.889,"owgr_rank":467},{"name":"Johannes Veerman","tour":"DP World Tour","dg_rank":399,"dg_index":-0.893,"owgr_rank":260},{"name":"Jay Card III","tour":"Korn Ferry Tour","dg_rank":400,"dg_index":-0.893,"owgr_rank":204},{"name":"Jeremy Paul","tour":"Korn Ferry Tour","dg_rank":401,"dg_index":-0.898,"owgr_rank":292},{"name":"Yurav Premlall","tour":"DP World Tour","dg_rank":402,"dg_index":-0.899,"owgr_rank":246},{"name":"Jase Summy","tour":"Amateur Events","dg_rank":403,"dg_index":-0.901,"owgr_rank":null},{"name":"Phil Mickelson","tour":"LIV Golf","dg_rank":404,"dg_index":-0.903,"owgr_rank":null},{"name":"Ernie Els","tour":"PGA TOUR Champions","dg_rank":405,"dg_index":-0.914,"owgr_rank":null},{"name":"Tobias Jonsson","tour":"DP World Tour","dg_rank":406,"dg_index":-0.915,"owgr_rank":450},{"name":"Taiki Yoshida","tour":"Other Tours","dg_rank":407,"dg_index":-0.915,"owgr_rank":419},{"name":"Taehoon Ok","tour":"Other Tours","dg_rank":408,"dg_index":-0.917,"owgr_rank":233},{"name":"Carson Bacha","tour":"Korn Ferry Tour","dg_rank":409,"dg_index":-0.918,"owgr_rank":343},{"name":"Barend Botha","tour":"Korn Ferry Tour","dg_rank":410,"dg_index":-0.919,"owgr_rank":294},{"name":"Tapio Pulkkanen","tour":"DP World Tour","dg_rank":411,"dg_index":-0.919,"owgr_rank":322},{"name":"Tommy Morrison","tour":"Amateur Events","dg_rank":412,"dg_index":-0.923,"owgr_rank":null},{"name":"Poom Saksansin","tour":"Other Tours","dg_rank":413,"dg_index":-0.929,"owgr_rank":431},{"name":"Stuart Macdonald","tour":"Korn Ferry Tour","dg_rank":414,"dg_index":-0.933,"owgr_rank":416},{"name":"Jinho Choi","tour":"Other Tours","dg_rank":415,"dg_index":-0.936,"owgr_rank":497},{"name":"David Law","tour":"DP World Tour","dg_rank":416,"dg_index":-0.943,"owgr_rank":238},{"name":"Tyler Watts","tour":"Amateur Events","dg_rank":417,"dg_index":-0.95,"owgr_rank":null},{"name":"Jimmy Stanger","tour":"PGA Tour","dg_rank":418,"dg_index":-0.95,"owgr_rank":null},{"name":"Derek Hitchner","tour":"Korn Ferry Tour","dg_rank":419,"dg_index":-0.953,"owgr_rank":407},{"name":"Tomohiro Ishizaka","tour":"Other Tours","dg_rank":420,"dg_index":-0.959,"owgr_rank":319},{"name":"Haydn Barron","tour":"Other Tours","dg_rank":421,"dg_index":-0.965,"owgr_rank":null},{"name":"Ryo Katsumata","tour":"Other Tours","dg_rank":422,"dg_index":-0.968,"owgr_rank":405},{"name":"Robby Shelton","tour":"Korn Ferry Tour","dg_rank":423,"dg_index":-0.969,"owgr_rank":378},{"name":"Luis Masaveu","tour":"LIV Golf","dg_rank":424,"dg_index":-0.971,"owgr_rank":null},{"name":"Will Cannon","tour":"Korn Ferry Tour","dg_rank":425,"dg_index":-0.976,"owgr_rank":null},{"name":"Martin Laird","tour":"PGA Tour","dg_rank":426,"dg_index":-0.976,"owgr_rank":438},{"name":"Junghwan Lee","tour":"Other Tours","dg_rank":427,"dg_index":-0.979,"owgr_rank":262},{"name":"Henrik Stenson","tour":"LIV Golf","dg_rank":428,"dg_index":-0.981,"owgr_rank":null},{"name":"Marcelo Rozo","tour":"PGA Tour","dg_rank":429,"dg_index":-0.996,"owgr_rank":null},{"name":"Sebastian Soderberg","tour":"DP World Tour","dg_rank":430,"dg_index":-0.999,"owgr_rank":372},{"name":"Logan McAllister","tour":"Korn Ferry Tour","dg_rank":431,"dg_index":-0.999,"owgr_rank":339},{"name":"Harry Higgs","tour":"PGA Tour","dg_rank":432,"dg_index":-1.001,"owgr_rank":351},{"name":"Jonathan Byrd","tour":"PGA Tour","dg_rank":433,"dg_index":-1.004,"owgr_rank":null},{"name":"Yosuke Asaji","tour":"Other Tours","dg_rank":434,"dg_index":-1.005,"owgr_rank":293},{"name":"Minhyuk Song","tour":"Other Tours","dg_rank":435,"dg_index":-1.007,"owgr_rank":321},{"name":"Sean Crocker","tour":"DP World Tour","dg_rank":436,"dg_index":-1.008,"owgr_rank":449},{"name":"Patton Kizzire","tour":"PGA Tour","dg_rank":437,"dg_index":-1.01,"owgr_rank":333},{"name":"Takashi Ogiso","tour":"Other Tours","dg_rank":438,"dg_index":-1.013,"owgr_rank":401},{"name":"Niklas Lemke","tour":"DP World Tour","dg_rank":439,"dg_index":-1.016,"owgr_rank":482},{"name":"Padraig Harrington","tour":"PGA TOUR Champions","dg_rank":440,"dg_index":-1.022,"owgr_rank":null},{"name":"Adam Schenk","tour":"PGA Tour","dg_rank":441,"dg_index":-1.031,"owgr_rank":164},{"name":"Carl Yuan","tour":"Korn Ferry Tour","dg_rank":442,"dg_index":-1.032,"owgr_rank":null},{"name":"Euan Walker","tour":"DP World Tour","dg_rank":443,"dg_index":-1.036,"owgr_rank":464},{"name":"Kyle Westmoreland","tour":"Korn Ferry Tour","dg_rank":444,"dg_index":-1.036,"owgr_rank":325},{"name":"Paul Chang","tour":"Amateur Events","dg_rank":445,"dg_index":-1.04,"owgr_rank":null},{"name":"Pedro Figueiredo","tour":"Challenge Tour","dg_rank":446,"dg_index":-1.041,"owgr_rank":null},{"name":"Filip Jakubcik","tour":"Amateur Events","dg_rank":447,"dg_index":-1.045,"owgr_rank":null},{"name":"Tom Fischer","tour":"Amateur Events","dg_rank":448,"dg_index":-1.046,"owgr_rank":null},{"name":"Anthony Quayle","tour":"DP World Tour","dg_rank":449,"dg_index":-1.05,"owgr_rank":null},{"name":"Jackson Van Paris","tour":"Korn Ferry Tour","dg_rank":450,"dg_index":-1.06,"owgr_rank":null},{"name":"Riki Kawamoto","tour":"Other Tours","dg_rank":451,"dg_index":-1.06,"owgr_rank":349},{"name":"James Piot","tour":"Other Tours","dg_rank":452,"dg_index":-1.066,"owgr_rank":null},{"name":"Danny Willett","tour":"PGA Tour","dg_rank":453,"dg_index":-1.068,"owgr_rank":432},{"name":"Chris Francoeur","tour":"Other Tours","dg_rank":454,"dg_index":-1.07,"owgr_rank":null},{"name":"Wade Ormsby","tour":"Other Tours","dg_rank":455,"dg_index":-1.072,"owgr_rank":406},{"name":"Aaron Cockerill","tour":"DP World Tour","dg_rank":456,"dg_index":-1.077,"owgr_rank":null},{"name":"Connor Howe","tour":"Other Tours","dg_rank":457,"dg_index":-1.078,"owgr_rank":null},{"name":"Pavit Tangkamolprasert","tour":"Other Tours","dg_rank":458,"dg_index":-1.079,"owgr_rank":379},{"name":"Jens Dantorp","tour":"DP World Tour","dg_rank":459,"dg_index":-1.08,"owgr_rank":435},{"name":"Jeong Woo Ham","tour":"Other Tours","dg_rank":460,"dg_index":-1.08,"owgr_rank":395},{"name":"Sampson Zheng","tour":"Other Tours","dg_rank":461,"dg_index":-1.082,"owgr_rank":488},{"name":"Daniel Young","tour":"DP World Tour","dg_rank":462,"dg_index":-1.082,"owgr_rank":362},{"name":"Maxwell Moldovan","tour":"Korn Ferry Tour","dg_rank":463,"dg_index":-1.083,"owgr_rank":495},{"name":"Petr Hruby","tour":"Korn Ferry Tour","dg_rank":464,"dg_index":-1.087,"owgr_rank":null},{"name":"Davis Riley","tour":"PGA Tour","dg_rank":465,"dg_index":-1.089,"owgr_rank":161},{"name":"Andy Ogletree","tour":"LIV Golf","dg_rank":466,"dg_index":-1.091,"owgr_rank":null},{"name":"Hamish Brown","tour":"Challenge Tour","dg_rank":467,"dg_index":-1.091,"owgr_rank":430},{"name":"Will Chandler","tour":"Korn Ferry Tour","dg_rank":468,"dg_index":-1.094,"owgr_rank":404},{"name":"Riley Lewis","tour":"Other Tours","dg_rank":469,"dg_index":-1.099,"owgr_rank":null},{"name":"Yongjun Bae","tour":"Other Tours","dg_rank":470,"dg_index":-1.1,"owgr_rank":null},{"name":"Bryce Lewis","tour":"Korn Ferry Tour","dg_rank":471,"dg_index":-1.108,"owgr_rank":398},{"name":"Phichaksn Maichon","tour":"Korn Ferry Tour","dg_rank":472,"dg_index":-1.111,"owgr_rank":null},{"name":"Tyler Weaver","tour":"Amateur Events","dg_rank":473,"dg_index":-1.114,"owgr_rank":null},{"name":"Luke List","tour":"PGA Tour","dg_rank":474,"dg_index":-1.117,"owgr_rank":null},{"name":"Patrick Newcomb","tour":"Other Tours","dg_rank":475,"dg_index":-1.119,"owgr_rank":null},{"name":"Miguel Tabuena","tour":"LIV Golf","dg_rank":476,"dg_index":-1.12,"owgr_rank":315},{"name":"Joe Highsmith","tour":"PGA Tour","dg_rank":477,"dg_index":-1.125,"owgr_rank":168},{"name":"Adam Wallin","tour":"Challenge Tour","dg_rank":478,"dg_index":-1.125,"owgr_rank":364},{"name":"Tripp Kinney","tour":"Other Tours","dg_rank":479,"dg_index":-1.131,"owgr_rank":null},{"name":"Yubin Jang","tour":"Other Tours","dg_rank":480,"dg_index":-1.132,"owgr_rank":null},{"name":"Ryder Cowan","tour":"Amateur Events","dg_rank":481,"dg_index":-1.133,"owgr_rank":null},{"name":"Josiah Gilbert","tour":"Amateur Events","dg_rank":482,"dg_index":-1.133,"owgr_rank":null},{"name":"Will Enefer","tour":"Challenge Tour","dg_rank":483,"dg_index":-1.138,"owgr_rank":350},{"name":"Harry Takis","tour":"Amateur Events","dg_rank":484,"dg_index":-1.139,"owgr_rank":null},{"name":"Theo Humphrey","tour":"Korn Ferry Tour","dg_rank":485,"dg_index":-1.148,"owgr_rank":471},{"name":"Ivan Cantero Gutierrez","tour":"DP World Tour","dg_rank":486,"dg_index":-1.149,"owgr_rank":445},{"name":"Luke Potter","tour":"Amateur Events","dg_rank":487,"dg_index":-1.151,"owgr_rank":null},{"name":"Runchanapong Youprayong","tour":"Other Tours","dg_rank":488,"dg_index":-1.151,"owgr_rank":null},{"name":"Tom Whitney","tour":"Korn Ferry Tour","dg_rank":489,"dg_index":-1.153,"owgr_rank":null},{"name":"Rayhan Thomas","tour":"Korn Ferry Tour","dg_rank":490,"dg_index":-1.154,"owgr_rank":null},{"name":"Mason Williams","tour":"Other Tours","dg_rank":491,"dg_index":-1.155,"owgr_rank":null},{"name":"Ben Campbell","tour":"LIV Golf","dg_rank":492,"dg_index":-1.157,"owgr_rank":null},{"name":"Caden Fioroni","tour":"Other Tours","dg_rank":493,"dg_index":-1.158,"owgr_rank":null},{"name":"Daniel Summerhays","tour":"Korn Ferry Tour","dg_rank":494,"dg_index":-1.158,"owgr_rank":null},{"name":"Troy Merritt","tour":"PGA Tour","dg_rank":495,"dg_index":-1.16,"owgr_rank":null},{"name":"Kevin Dougherty","tour":"Korn Ferry Tour","dg_rank":496,"dg_index":-1.162,"owgr_rank":411},{"name":"Charlie Lindh","tour":"Other Tours","dg_rank":497,"dg_index":-1.164,"owgr_rank":436},{"name":"Graham Van Der Merwe","tour":"Other Tours","dg_rank":498,"dg_index":-1.164,"owgr_rank":null},{"name":"Will Gordon","tour":"Korn Ferry Tour","dg_rank":499,"dg_index":-1.169,"owgr_rank":414},{"name":"Tatsunori Shogenji","tour":"Other Tours","dg_rank":500,"dg_index":-1.172,"owgr_rank":250}];
+
+// ── Schedule — 2026 PGA Tour (Sony Open → BMW Championship) ──────────────────
+const T = [
+  {id:'sony',     name:'Sony Open in Hawaii',                          date:'Jan 15–18',    venue:'Waialae CC, HI',              past:true},
+  {id:'amex',     name:'The American Express',                         date:'Jan 22–25',    venue:'La Quinta, CA',               past:true},
+  {id:'farmers',  name:'Farmers Insurance Open',                       date:'Jan 29–Feb 1', venue:'Torrey Pines, CA',            past:true},
+  {id:'wm',       name:'WM Phoenix Open',                              date:'Feb 5–8',      venue:'TPC Scottsdale, AZ',          past:true},
+  {id:'att',      name:'AT&T Pebble Beach Pro-Am',                     date:'Feb 12–15',    venue:'Pebble Beach, CA',            past:true},
+  {id:'genesis',  name:'The Genesis Invitational',                     date:'Feb 19–22',    venue:'Riviera CC, CA',              past:true},
+  {id:'cognizant',name:'Cognizant Classic',                            date:'Feb 26–Mar 1', venue:'PGA National, FL',            past:true},
+  {id:'api',      name:'Arnold Palmer Invitational presented by Mastercard', date:'Mar 5–8', venue:'Bay Hill, FL',              past:true},
+  {id:'players',  name:'The Players Championship',                     date:'Mar 12–15',    venue:'TPC Sawgrass, FL',            past:true},
+  {id:'valspar',  name:'Valspar Championship',                         date:'Mar 19–22',    venue:'Innisbrook, FL',              past:true},
+  {id:'texas',    name:"Texas Children's Houston Open",                date:'Mar 26–29',    venue:'Memorial Park, TX',           past:true},
+  {id:'valero',   name:'Valero Texas Open',                            date:'Apr 2–5',      venue:'TPC San Antonio, TX',         past:true},
+  {id:'masters',  name:'Masters Tournament',                           date:'Apr 9–12',     venue:'Augusta National, GA',        past:true},
+  {id:'rbc',      name:'RBC Heritage',                                 date:'Apr 16–19',    venue:'Harbour Town, SC',            past:true},
+  {id:'miami',    name:'Miami Championship',                           date:'Apr 30–May 3', venue:'Doral, FL',                   past:true},
+  {id:'truist',   name:'Truist Championship',                          date:'May 7–10',     venue:'Quail Hollow, NC',            past:true},
+  {id:'pga',      name:'PGA Championship',                             date:'May 14–17',    venue:'Quail Hollow, NC',            past:true},
+  {id:'cj',       name:'The CJ Cup Byron Nelson',                      date:'May 21–24',    venue:'TPC Craig Ranch, TX',         past:true},
+  {id:'schwab',   name:'Charles Schwab Challenge',                     date:'May 28–31',    venue:'Colonial CC, TX',             past:true},
+  {id:'memorial', name:'The Memorial Tournament presented by Workday', date:'Jun 4–7',      venue:'Muirfield Village, OH',       past:true},
+  {id:'canadian', name:'RBC Canadian Open',                            date:'Jun 11–14',    venue:'TPC Toronto, CAN',            past:true},
+  {id:'usopen',   name:'U.S. Open',                                    date:'Jun 18–21',    venue:'TBD',                         past:false, current:true},
+  {id:'travelers',name:'Travelers Championship',                       date:'Jun 25–28',    venue:'TPC River Highlands, CT',     past:false},
+  {id:'jd',       name:'John Deere Classic',                           date:'Jul 2–5',      venue:'TPC Deere Run, IL',           past:false},
+  {id:'scottish', name:'Genesis Scottish Open',                        date:'Jul 9–12',     venue:'Renaissance Club, SCO',       past:false},
+  {id:'open',     name:'The Open Championship',                        date:'Jul 16–19',    venue:'Royal Portrush, NIR',         past:false},
+  {id:'3m',       name:'3M Open',                                      date:'Jul 23–26',    venue:'TPC Twin Cities, MN',         past:false},
+  {id:'rocket',   name:'Rocket Classic',                               date:'Jul 30–Aug 2', venue:'Detroit GC, MI',              past:false},
+  {id:'wyndham',  name:'Wyndham Championship',                         date:'Aug 6–9',      venue:'Sedgefield CC, NC',           past:false},
+  {id:'stjude',   name:'FedEx St. Jude Championship',                  date:'Aug 13–16',    venue:'TPC Southwind, TN',           past:false},
+  {id:'bmw',      name:'BMW Championship',                             date:'Aug 20–23',    venue:'Caves Valley, MD',            past:false},
+];
+
+const PC = ['p1','p2','p3','p4'];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let poolNames = JSON.parse(localStorage.getItem('oad_names') || '["Pool 1","Pool 2","Pool 3","Pool 4"]');
+let picks     = JSON.parse(localStorage.getItem('oad_picks') || '{}');
+let players   = [];   // {name, tour, dg_rank, dg_index, owgr_rank}
+let rankFilter = 'all';
+let remainPool = 'all';
+
+function savePicks(){ localStorage.setItem('oad_picks', JSON.stringify(picks)); }
+function saveNames(){ localStorage.setItem('oad_names', JSON.stringify(poolNames)); }
+
+// ── CSV Parsing ───────────────────────────────────────────────────────────────
+// DataGolf CSV name format: "Last, First" (quoted, comma-separated within the name)
+// We need to flip to "First Last" for display and for matching saved picks.
+function parseLastFirst(raw){
+  // raw may be: Scheffler, Scottie   or   "Scheffler, Scottie"
+  const s = raw.replace(/^"|"$/g,'').trim();
+  const ci = s.indexOf(',');
+  if(ci === -1) return s;
+  const last  = s.slice(0, ci).trim();
+  const first = s.slice(ci+1).trim();
+  return first + ' ' + last;
+}
+
+function tourClass(t){
+  if(!t) return 'tour';
+  const u = t.toLowerCase();
+  if(u.includes('pga tour')) return 'tour tour-pga';
+  if(u.includes('liv'))      return 'tour tour-liv';
+  if(u.includes('dp world')) return 'tour tour-dp';
+  if(u.includes('korn'))     return 'tour tour-kft';
+  return 'tour';
+}
+
+function parseCSV(text){
+  const lines = text.trim().split('\n');
+  if(lines.length < 2) throw new Error('File appears empty');
+
+  // parse header to find column indices
+  const header = parseCSVRow(lines[0]);
+  const idx = {};
+  header.forEach((h,i)=>{ idx[h.trim().toLowerCase()] = i; });
+
+  const req = ['player_name','dg_rank','dg_index','owgr_rank','primary_tour'];
+  for(const r of req){
+    if(idx[r] === undefined) throw new Error(`Missing column: ${r}`);
+  }
+
+  const result = [];
+  for(let i = 1; i < lines.length; i++){
+    const line = lines[i].trim();
+    if(!line) continue;
+    const cols = parseCSVRow(line);
+    if(cols.length < 3) continue;
+
+    const rawName = cols[idx['player_name']] || '';
+    const name    = parseLastFirst(rawName);
+    if(!name) continue;
+
+    const dg_rank  = parseInt(cols[idx['dg_rank']]) || null;
+    const dg_index = parseFloat(cols[idx['dg_index']]);
+    const owgr_raw = cols[idx['owgr_rank']];
+    const owgr     = owgr_raw && owgr_raw !== 'null' ? parseInt(owgr_raw) : null;
+    const tour     = (cols[idx['primary_tour']] || '').replace(/^"|"$/g,'').trim();
+
+    if(!dg_rank) continue;
+    result.push({ name, tour, dg_rank, dg_index: isNaN(dg_index)?null:dg_index, owgr_rank: owgr });
+  }
+  result.sort((a,b) => a.dg_rank - b.dg_rank);
+  return result;
+}
+
+// Simple CSV row parser that handles quoted fields containing commas
+function parseCSVRow(line){
+  const cols = [];
+  let cur = '', inQ = false;
+  for(let i = 0; i < line.length; i++){
+    const c = line[i];
+    if(c === '"'){
+      inQ = !inQ;
+    } else if(c === ',' && !inQ){
+      cols.push(cur); cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  cols.push(cur);
+  return cols;
+}
+
+function handleCSVFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => ingestCSV(e.target.result, file.name);
+  reader.readAsText(file);
+  input.value = ''; // reset so same file can be re-imported
+}
+
+function handleCSVDrop(event){
+  const file = event.dataTransfer.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => ingestCSV(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+function ingestCSV(text, filename){
+  try {
+    const parsed = parseCSV(text);
+    if(!parsed.length) throw new Error('No valid player rows found');
+
+    players = parsed;
+    const now = new Date().toLocaleString();
+    localStorage.setItem('oad_players', JSON.stringify(players));
+    localStorage.setItem('oad_players_date', now);
+    localStorage.setItem('oad_players_file', filename || 'import');
+
+    updateRankingsStatus();
+    buildGrid();
+    renderPT();
+
+    toast(`✓ Imported ${players.length} players from ${filename}`);
+
+    const resultEl = document.getElementById('import-result');
+    if(resultEl) resultEl.textContent = `✓ Imported ${players.length} players · ${now}`;
+
+    dismissHint();
+  } catch(err){
+    toast('Import error: ' + err.message);
+    console.error(err);
+    const resultEl = document.getElementById('import-result');
+    if(resultEl) resultEl.textContent = '✗ Error: ' + err.message;
+  }
+}
+
+function updateRankingsStatus(){
+  const date = localStorage.getItem('oad_players_date');
+  const file = localStorage.getItem('oad_players_file');
+  const el   = document.getElementById('rankings-status');
+  const lbl  = document.getElementById('dg-label');
+  if(date && file && players.length){
+    const s = `${players.length} players from ${file} · ${date}`;
+    if(el)  el.textContent = s;
+    if(lbl) lbl.textContent = s;
+  } else {
+    if(el)  el.textContent = 'Built-in list — import CSV for live rankings';
+    if(lbl) lbl.textContent = 'Built-in list';
+  }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(t){
+  ['picks','distribution','remaining','players','pick3','help'].forEach(n=>{
+    document.getElementById('pane-'+n).style.display = n===t?'':'none';
+    document.getElementById('tab-'+n).classList.toggle('active',n===t);
+  });
+  // Toggle nav buttons context
+  const onP3 = t==='pick3';
+  document.getElementById('p3-export-btn').style.display = onP3 ? '' : 'none';
+  document.getElementById('p3-import-btn').style.display = onP3 ? '' : 'none';
+  if(t==='distribution') renderDist();
+  if(t==='remaining')    renderRemaining();
+  if(t==='players')      renderPT();
+  if(t==='pick3')        { renderP3Grid(); renderP3Usage(); renderP3Avail(); }
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+function dismissHint(){
+  localStorage.setItem('oad_hint_dismissed','1');
+  const el=document.getElementById('import-hint');
+  if(el) el.style.display='none';
+}
+
+// ── Picks helpers ─────────────────────────────────────────────────────────────
+function usedByPool(pi){
+  const s=new Set();
+  T.forEach(t=>{ if(picks[t.id+'_'+pi]) s.add(picks[t.id+'_'+pi]); });
+  return s;
+}
+function conflicts(){
+  let c=0;
+  [0,1,2,3].forEach(pi=>{
+    const seen={};
+    T.forEach(t=>{ const v=picks[t.id+'_'+pi]; if(v){ seen[v]=(seen[v]||0)+1; if(seen[v]===2) c++; } });
+  });
+  return c;
+}
+function updateStats(){
+  const total=T.length*4; let filled=0;
+  T.forEach(t=>[0,1,2,3].forEach(pi=>{ if(picks[t.id+'_'+pi]) filled++; }));
+  document.getElementById('st-weeks').textContent  = T.length;
+  document.getElementById('st-filled').textContent = filled;
+  document.getElementById('st-left').textContent   = total-filled;
+  const c=conflicts();
+  document.getElementById('st-conf').textContent = c;
+  document.getElementById('st-conf').style.color = c>0?'var(--red)':'var(--blue)';
+}
+
+// ── Pool name row ─────────────────────────────────────────────────────────────
+function buildNamesRow(){
+  document.getElementById('names-row').innerHTML = poolNames.map((n,i)=>`
+    <div class="name-wrap">
+      <span class="pb ${PC[i]}">P${i+1}</span>
+      <input class="ni" value="${esc(n)}" maxlength="24"
+        onchange="poolNames[${i}]=this.value;saveNames();refreshTH()">
+    </div>`).join('');
+}
+function refreshTH(){
+  [0,1,2,3].forEach(i=>{
+    const th=document.getElementById('th'+i);
+    if(th) th.innerHTML=`<span class="pb ${PC[i]}">P${i+1}</span> ${esc(poolNames[i])}`;
+  });
+}
+
+// ── Build picks table ─────────────────────────────────────────────────────────
+function buildGrid(){
+  buildNamesRow();
+  let h=`<table class="pt"><thead><tr>
+    <th style="min-width:195px">Tournament</th><th style="min-width:85px">Date</th>`;
+  for(let i=0;i<4;i++)
+    h+=`<th style="min-width:155px" id="th${i}"><span class="pb ${PC[i]}">P${i+1}</span> ${esc(poolNames[i])}</th>`;
+  h+='</tr></thead><tbody>';
+  T.forEach(t=>{
+    const sc=t.past?'past':(t.current?'current':'future');
+    const sl=t.past?'Complete':(t.current?'Current':'Upcoming');
+    h+=`<tr><td><strong style="font-size:13px">${esc(t.name)}</strong><br>
+      <span style="font-size:11px;color:var(--muted)">${esc(t.venue)}</span></td>
+      <td><span class="wb ${sc}">${sl}</span><br>
+      <span style="font-size:11px;color:var(--muted)">${t.date}</span></td>`;
+    for(let pi=0;pi<4;pi++){
+      const k=t.id+'_'+pi, val=picks[k]||'';
+      h+=`<td><select class="ps" data-t="${t.id}" data-p="${pi}" onchange="setPick(this)">
+        <option value="">— select —</option>${buildOpts(t.id,pi,val)}
+      </select>
+      <div class="cw" id="cf-${t.id}-${pi}">⚠ Used twice in pool!</div></td>`;
+    }
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById('picks-grid').innerHTML=h;
+  updateStats(); checkConflicts();
+}
+
+function buildOpts(tid,pi,sel){
+  const used=usedByPool(pi);
+  let o='';
+  // Keep any saved pick that's not in player list (manual entry / old data)
+  if(sel && !players.find(p=>p.name===sel))
+    o+=`<option value="${escA(sel)}" selected>${esc(sel)}</option>`;
+  players.forEach(p=>{
+    const burned=used.has(p.name)&&picks[tid+'_'+pi]!==p.name;
+    const s=p.name===sel?' selected':'';
+    const style=burned?' style="color:#dc2626"':'';
+    const pre=burned?'✗ ':'';
+    const owgr=p.owgr_rank?` · OWGR ${p.owgr_rank}`:'';
+    o+=`<option value="${escA(p.name)}"${s}${style}>${pre}${esc(p.name)} (#${p.dg_rank}${owgr})</option>`;
+  });
+  return o;
+}
+
+function setPick(sel){
+  const tid=sel.dataset.t, pi=+sel.dataset.p;
+  picks[tid+'_'+pi]=sel.value;
+  savePicks(); updateStats(); rebuildSelects(); checkConflicts();
+}
+function rebuildSelects(){
+  T.forEach(t=>{ for(let pi=0;pi<4;pi++){
+    const el=document.querySelector(`select[data-t="${t.id}"][data-p="${pi}"]`);
+    if(el){ const cur=el.value; el.innerHTML='<option value="">— select —</option>'+buildOpts(t.id,pi,cur); }
+  }});
+}
+function checkConflicts(){
+  [0,1,2,3].forEach(pi=>{
+    const seen={};
+    T.forEach(t=>{ const v=picks[t.id+'_'+pi]; if(v) seen[v]=(seen[v]||[]).concat(t.id); });
+    T.forEach(t=>{
+      const el=document.getElementById(`cf-${t.id}-${pi}`);
+      if(!el) return;
+      const v=picks[t.id+'_'+pi];
+      el.style.display=(v&&seen[v]&&seen[v].length>1)?'block':'none';
+    });
+  });
+}
+
+// ── Distribution ──────────────────────────────────────────────────────────────
+function renderDist(){
+  const body=document.getElementById('dist-body');
+  let h='',any=false;
+  T.forEach(t=>{
+    const pp=[0,1,2,3].map(pi=>picks[t.id+'_'+pi]||null).filter(Boolean);
+    if(!pp.length) return; any=true;
+    const counts={};
+    pp.forEach(p=>counts[p]=(counts[p]||0)+1);
+    const mx=Math.max(...Object.values(counts));
+    h+=`<div class="db">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+        <strong style="font-size:14px">${esc(t.name)}</strong>
+        <span style="font-size:11px;color:var(--muted)">${t.date}</span>
+      </div>`;
+    Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([name,cnt])=>{
+      const bw=Math.round(cnt/mx*100);
+      const bc=cnt===4?'#dc2626':cnt===3?'#ea580c':cnt===2?'#ca8a04':'#2563eb';
+      const badges=[0,1,2,3].filter(pi=>picks[t.id+'_'+pi]===name)
+        .map(pi=>`<span class="pb ${PC[pi]}">P${pi+1}</span>`).join('');
+      h+=`<div class="dr">
+        <div class="dname">${esc(name)}</div>
+        <div style="min-width:76px">${badges}</div>
+        <div class="dbw"><div class="dbar" style="width:${bw}%;background:${bc}"></div></div>
+        <div class="dcnt">${cnt}/4 (${Math.round(cnt/4*100)}%)</div>
+      </div>`;
+    });
+    h+='</div>';
+  });
+  body.innerHTML=any?h:'<div class="empty">Enter picks to see distribution.</div>';
+}
+
+// ── Remaining ─────────────────────────────────────────────────────────────────
+function setRP(p,btn){
+  remainPool=p;
+  document.querySelectorAll('#pane-remaining .fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRemaining();
+}
+
+function renderRemaining(){
+  const body=document.getElementById('remain-body');
+  if(!players.length){ body.innerHTML='<div class="empty">Import a DataGolf CSV to load player data.</div>'; return; }
+
+  // Pre-compute used sets and tournament lookup for all 4 pools
+  const usedSets = [0,1,2,3].map(pi=>usedByPool(pi));
+  // {poolIdx: {playerName: tournamentDate}}
+  const usedDate = [0,1,2,3].map(pi=>{
+    const map={};
+    T.forEach(t=>{ const v=picks[t.id+'_'+pi]; if(v) map[v]=t.date.split('–')[0]; });
+    return map;
+  });
+
+  const showPools = remainPool==='all' ? [0,1,2,3] : [parseInt(remainPool)];
+
+  // Summary counts per shown pool
+  let summaryH = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">';
+  showPools.forEach(pi=>{
+    const avail = players.filter(p=>!usedSets[pi].has(p.name)).length;
+    const used  = usedSets[pi].size;
+    summaryH += `<div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 12px">
+      <span class="pb ${PC[pi]}">P${pi+1}</span>
+      <strong style="font-size:13px">${esc(poolNames[pi])}</strong>
+      <span class="pill pill-g" style="margin-left:4px">✓ ${avail}</span>
+      <span class="pill pill-r">✗ ${used}</span>
+    </div>`;
+  });
+  summaryH += '</div>';
+
+  // Build table header — fixed columns + one column per shown pool
+  let h = summaryH;
+  h += '<div style="overflow-x:auto"><table class="rt" style="min-width:600px"><thead><tr>';
+  h += '<th style="width:52px">Rank</th><th>Player</th><th>Tour</th><th>DG Index</th><th>OWGR</th>';
+  showPools.forEach(pi=>{
+    h += `<th style="min-width:120px;text-align:center"><span class="pb ${PC[pi]}">P${pi+1}</span> ${esc(poolNames[pi])}</th>`;
+  });
+  h += '</tr></thead><tbody>';
+
+  players.forEach(p=>{
+    // Is the player used in ALL shown pools?
+    const usedInAll = showPools.every(pi=>usedSets[pi].has(p.name));
+    // Is the player available in ANY shown pool?
+    const availInAny = showPools.some(pi=>!usedSets[pi].has(p.name));
+
+    const rowOpacity = usedInAll ? 'opacity:0.32;' : '';
+    const rowBg      = usedInAll ? 'background:#f9fafb;' : '';
+    const nameStyle  = usedInAll
+      ? 'text-decoration:line-through;color:var(--muted);font-weight:400'
+      : 'font-weight:600';
+    const mutedText  = usedInAll ? 'color:var(--muted)' : '';
+
+    h += `<tr style="${rowOpacity}${rowBg}">`;
+    h += `<td><span class="rbadge" style="${usedInAll?'background:#f3f4f6;color:var(--muted)':''}">${p.dg_rank}</span></td>`;
+    h += `<td><span style="${nameStyle}">${esc(p.name)}</span></td>`;
+    h += `<td><span class="${tourClass(p.tour)}" style="${usedInAll?'opacity:.45':''}">${esc(p.tour||'—')}</span></td>`;
+    h += `<td style="font-size:12px;${mutedText}">${p.dg_index!=null?p.dg_index.toFixed(3):'—'}</td>`;
+    h += `<td style="font-size:12px;color:var(--muted)">${p.owgr_rank||'—'}</td>`;
+
+    showPools.forEach(pi=>{
+      const used = usedSets[pi].has(p.name);
+      const date = usedDate[pi][p.name]||'';
+      if(used){
+        h += `<td style="text-align:center">
+          <span style="font-size:11px;background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;white-space:nowrap">✗ ${date}</span>
+        </td>`;
+      } else {
+        h += `<td style="text-align:center">
+          <span style="font-size:11px;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px">✓</span>
+        </td>`;
+      }
+    });
+
+    h += '</tr>';
+  });
+
+  h += '</tbody></table></div>';
+  body.innerHTML = h;
+}
+
+// ── Player table ──────────────────────────────────────────────────────────────
+function setRF(r,btn){
+  rankFilter=r;
+  document.querySelectorAll('#pane-players .fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPT();
+}
+function renderPT(){
+  const body=document.getElementById('player-body');
+  const q=(document.getElementById('psearch')?.value||'').toLowerCase();
+  const usedAny=new Set();
+  [0,1,2,3].forEach(pi=>usedByPool(pi).forEach(p=>usedAny.add(p)));
+  let list=[...players];
+  if(rankFilter==='top25')  list=list.filter(p=>p.dg_rank<=25);
+  else if(rankFilter==='top50')  list=list.filter(p=>p.dg_rank<=50);
+  else if(rankFilter==='top100') list=list.filter(p=>p.dg_rank<=100);
+  else if(rankFilter==='avail')  list=list.filter(p=>!usedAny.has(p.name));
+  else if(rankFilter==='pga')    list=list.filter(p=>p.tour==='PGA Tour');
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+  if(!list.length){ body.innerHTML='<div class="empty">No players match that filter.</div>'; return; }
+  let h=`<table class="rt"><thead><tr>
+    <th>DG Rank</th><th>Player</th><th>Tour</th><th>DG Index</th><th>OWGR</th><th>Used In</th>
+  </tr></thead><tbody>`;
+  list.slice(0,300).forEach(p=>{
+    const ups=[0,1,2,3].filter(pi=>usedByPool(pi).has(p.name));
+    const bdg=ups.map(pi=>`<span class="pb ${PC[pi]}">P${pi+1}</span>`).join('');
+    const dim=ups.length?'opacity:.42':'';
+    h+=`<tr style="${dim}"><td><span class="rbadge">${p.dg_rank}</span></td>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td><span class="${tourClass(p.tour)}">${esc(p.tour||'—')}</span></td>
+      <td style="font-size:12px">${p.dg_index!=null?p.dg_index.toFixed(3):'—'}</td>
+      <td style="font-size:12px;color:var(--muted)">${p.owgr_rank||'—'}</td>
+      <td>${bdg||'<span style="font-size:12px;color:var(--muted)">—</span>'}</td>
+    </tr>`;
+  });
+  h+='</tbody></table>';
+  body.innerHTML=h;
+}
+
+// ── Export picks CSV ──────────────────────────────────────────────────────────
+function exportCSV(){
+  let csv='Tournament,Date,Venue,'+poolNames.map(n=>`"${n}"`).join(',')+'\n';
+  T.forEach(t=>{
+    csv+=`"${t.name}","${t.date}","${t.venue}",`
+      +[0,1,2,3].map(pi=>`"${picks[t.id+'_'+pi]||''}"`).join(',')+'\n';
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='one_and_done_picks_2026.csv';
+  a.click();
+  toast('Picks exported!');
+}
+
+// ── Import picks CSV ──────────────────────────────────────────────────────────
+// Accepts the same format the export produces:
+// Tournament, Date, Venue, Pool1Name, Pool2Name, Pool3Name, Pool4Name
+function handlePicksFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => ingestPicksCSV(e.target.result, file.name);
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function ingestPicksCSV(text, filename){
+  try {
+    const lines = text.trim().split('\n');
+    if(lines.length < 2) throw new Error('File appears empty');
+
+    // Parse header to find pool name columns (cols 3-6)
+    const headerCols = parseCSVRow(lines[0]);
+    if(headerCols.length < 5) throw new Error('Expected at least 5 columns (Tournament, Date, Venue, Pool1…Pool4)');
+
+    // Update pool names from header if they look meaningful
+    const importedNames = headerCols.slice(3, 7).map(n => n.replace(/^"|"$/g,'').trim());
+    importedNames.forEach((n, i) => { if(n && n !== `Pool ${i+1}`) poolNames[i] = n; });
+    saveNames();
+
+    // Build a tournament lookup by name so order doesn't matter
+    const tByName = {};
+    T.forEach(t => { tByName[t.name.toLowerCase()] = t.id; });
+
+    let imported = 0, skipped = 0;
+    const newPicks = { ...picks }; // start from current picks, overlay imported ones
+
+    for(let i = 1; i < lines.length; i++){
+      const line = lines[i].trim();
+      if(!line) continue;
+      const cols = parseCSVRow(line);
+      const tournName = (cols[0]||'').replace(/^"|"$/g,'').trim();
+      const tid = tByName[tournName.toLowerCase()];
+      if(!tid){ skipped++; continue; }
+
+      for(let pi = 0; pi < 4; pi++){
+        const raw = cols[3 + pi] || '';
+        const val = raw.replace(/^"|"$/g,'').trim();
+        const k   = tid + '_' + pi;
+        if(val){
+          newPicks[k] = val;
+          imported++;
+        }
+      }
+    }
+
+    picks = newPicks;
+    savePicks();
+    buildGrid();
+    toast(`✓ Imported ${imported} picks from ${filename}${skipped ? ` (${skipped} rows skipped)` : ''}`);
+  } catch(err){
+    toast('Import error: ' + err.message);
+    console.error(err);
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PICK 3 POOL — 3 picks per week, max 3 uses per player across the season
+// ══════════════════════════════════════════════════════════════════════════════
+
+let p3picks = JSON.parse(localStorage.getItem('oad_p3picks') || '{}');
+// p3picks key format: "{tournamentId}_{slot}" where slot = 0,1,2  value = player name
+
+let p3usageFilter = 'all';
+let p3availFilter = 'all';
+
+function saveP3(){ localStorage.setItem('oad_p3picks', JSON.stringify(p3picks)); }
+
+// Returns {playerName: count} for all players used in Pick 3
+function getP3UsageCounts(){
+  const counts = {};
+  T.forEach(t=>{
+    [0,1,2].forEach(s=>{
+      const v = p3picks[t.id+'_'+s];
+      if(v) counts[v] = (counts[v]||0) + 1;
+    });
+  });
+  return counts;
+}
+
+function p3UpdateStats(){
+  const counts = getP3UsageCounts();
+  let filled = 0;
+  T.forEach(t=>{ [0,1,2].forEach(s=>{ if(p3picks[t.id+'_'+s]) filled++; }); });
+  const maxed  = Object.values(counts).filter(c=>c>=3).length;
+  const unique = Object.keys(counts).length;
+  document.getElementById('p3-stat-picks').textContent = filled;
+  document.getElementById('p3-stat-left').textContent  = T.length*3 - filled;
+  document.getElementById('p3-stat-maxed').textContent = maxed;
+  document.getElementById('p3-stat-used').textContent  = unique;
+}
+
+// ── Pick 3 sub-tab switching ──────────────────────────────────────────────────
+function showP3Sub(sub, btn){
+  ['picks','usage','avail'].forEach(s=>{
+    document.getElementById('p3-pane-'+s).style.display = s===sub?'':'none';
+  });
+  document.querySelectorAll('.p3-sub').forEach(b=>{
+    b.style.background = 'var(--surface)';
+    b.style.color = 'var(--muted)';
+  });
+  btn.style.background = 'var(--blue)';
+  btn.style.color = '#fff';
+  if(sub==='usage') renderP3Usage();
+  if(sub==='avail') renderP3Avail();
+}
+
+// ── Weekly picks grid ─────────────────────────────────────────────────────────
+function renderP3Grid(){
+  const counts = getP3UsageCounts();
+  let h = `<table class="pt" style="min-width:600px"><thead><tr>
+    <th style="min-width:195px">Tournament</th>
+    <th style="min-width:85px">Date</th>
+    <th style="min-width:160px">Pick 1</th>
+    <th style="min-width:160px">Pick 2</th>
+    <th style="min-width:160px">Pick 3</th>
+  </tr></thead><tbody>`;
+
+  T.forEach(t=>{
+    const sc = t.past?'past':(t.current?'current':'future');
+    const sl = t.past?'Complete':(t.current?'Current':'Upcoming');
+    // Detect duplicates within this week
+    const weekPicks = [0,1,2].map(s=>p3picks[t.id+'_'+s]||'');
+    h += `<tr><td><strong style="font-size:13px">${esc(t.name)}</strong><br>
+      <span style="font-size:11px;color:var(--muted)">${esc(t.venue)}</span></td>
+      <td><span class="wb ${sc}">${sl}</span><br>
+      <span style="font-size:11px;color:var(--muted)">${t.date}</span></td>`;
+    [0,1,2].forEach(s=>{
+      const k   = t.id+'_'+s;
+      const val = p3picks[k]||'';
+      const dupThisWeek = val && weekPicks.filter(v=>v===val).length > 1;
+      const overUsed    = val && counts[val] > 3;
+      h += `<td>
+        <select class="ps" data-t3="${t.id}" data-s="${s}" onchange="setP3Pick(this)">
+          <option value="">— select —</option>
+          ${buildP3Opts(t.id, s, val, counts)}
+        </select>
+        ${dupThisWeek ? '<div class="cw" style="display:block;background:#fee2e2;color:#991b1b">⚠ Duplicate this week!</div>' : ''}
+        ${overUsed    ? '<div class="cw" style="display:block">⚠ Used 3× already!</div>' : ''}
+      </td>`;
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('p3-grid').innerHTML = h;
+  p3UpdateStats();
+}
+
+function buildP3Opts(tid, slot, selected, counts){
+  let o = '';
+  // Keep any saved pick not in player list
+  if(selected && !players.find(p=>p.name===selected))
+    o += `<option value="${escA(selected)}" selected>${esc(selected)}</option>`;
+
+  players.forEach(p=>{
+    const uses    = counts[p.name] || 0;
+    const maxed   = uses >= 3 && p3picks[tid+'_'+slot] !== p.name;
+    const sel     = p.name === selected ? ' selected' : '';
+    const style   = maxed ? ' style="color:#dc2626"' : uses === 2 ? ' style="color:#ca8a04"' : '';
+    const prefix  = maxed ? '✗ ' : uses === 2 ? '⚠ ' : '';
+    const suffix  = uses > 0 ? ` [${uses}/3]` : '';
+    o += `<option value="${escA(p.name)}"${sel}${style}>${prefix}${esc(p.name)} (#${p.dg_rank})${suffix}</option>`;
+  });
+  return o;
+}
+
+function setP3Pick(sel){
+  const tid = sel.dataset.t3;
+  const s   = parseInt(sel.dataset.s);
+  p3picks[tid+'_'+s] = sel.value;
+  saveP3();
+  renderP3Grid();  // rebuild grid to refresh counts in all dropdowns
+  renderP3Usage();
+  renderP3Avail();
+}
+
+// ── Player usage tracker ──────────────────────────────────────────────────────
+function setP3UF(f, btn){
+  p3usageFilter = f;
+  document.querySelectorAll('#p3-pane-usage .fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderP3Usage();
+}
+
+function renderP3Usage(){
+  const body  = document.getElementById('p3-usage-body');
+  if(!body) return;
+  const counts = getP3UsageCounts();
+  const q = (document.getElementById('p3-usage-search')?.value||'').toLowerCase();
+
+  // Build list: merge usage with player data for rank ordering
+  let list = Object.entries(counts).map(([name, cnt])=>{
+    const p = players.find(pl=>pl.name===name);
+    return { name, cnt, dg_rank: p?.dg_rank||999, tour: p?.tour||'' };
+  });
+
+  if(p3usageFilter==='1') list = list.filter(r=>r.cnt===1);
+  else if(p3usageFilter==='2') list = list.filter(r=>r.cnt===2);
+  else if(p3usageFilter==='3') list = list.filter(r=>r.cnt>=3);
+  if(q) list = list.filter(r=>r.name.toLowerCase().includes(q));
+  list.sort((a,b)=>a.dg_rank-b.dg_rank);
+
+  if(!list.length){ body.innerHTML='<div class="empty">No picks match that filter.</div>'; return; }
+
+  // Usage pip display
+  function pips(cnt){
+    return [1,2,3].map(i=>{
+      const filled = i <= cnt;
+      const color  = cnt>=3 ? '#dc2626' : cnt===2 ? '#ca8a04' : '#2563eb';
+      return `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:3px;background:${filled?color:'var(--border)'};border:1px solid ${filled?color:'var(--border)'}"></span>`;
+    }).join('');
+  }
+
+  // Find which weeks this player was used
+  function weeksUsed(name){
+    return T.filter(t=>[0,1,2].some(s=>p3picks[t.id+'_'+s]===name))
+            .map(t=>`<span style="font-size:10px;background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;margin-right:3px;white-space:nowrap">${t.date.split('–')[0]}</span>`)
+            .join('');
+  }
+
+  let h = `<table class="rt"><thead><tr>
+    <th>DG Rank</th><th>Player</th><th>Tour</th><th>Uses</th><th>Remaining</th><th>Used In</th>
+  </tr></thead><tbody>`;
+  list.forEach(r=>{
+    const left = Math.max(0, 3 - r.cnt);
+    const maxed = r.cnt >= 3;
+    const rowStyle = maxed ? 'opacity:.5' : '';
+    h += `<tr style="${rowStyle}">
+      <td><span class="rbadge">${r.dg_rank}</span></td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td><span class="${tourClass(r.tour)}">${esc(r.tour||'—')}</span></td>
+      <td>${pips(r.cnt)} <span style="font-size:12px;font-weight:600;color:${r.cnt>=3?'var(--red)':r.cnt===2?'var(--yellow)':'var(--blue)'}">${r.cnt}/3</span></td>
+      <td><span style="font-size:13px;font-weight:600;color:${left===0?'var(--red)':left===1?'var(--yellow)':'var(--green)'}">${left} left</span></td>
+      <td style="font-size:11px">${weeksUsed(r.name)}</td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  body.innerHTML = h;
+}
+
+// ── Available players ─────────────────────────────────────────────────────────
+function setP3AF(f, btn){
+  p3availFilter = f;
+  document.querySelectorAll('#p3-pane-avail .fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderP3Avail();
+}
+
+function renderP3Avail(){
+  const body = document.getElementById('p3-avail-body');
+  if(!body) return;
+  if(!players.length){ body.innerHTML='<div class="empty">Import rankings CSV to load players.</div>'; return; }
+  const counts = getP3UsageCounts();
+  const q = (document.getElementById('p3-avail-search')?.value||'').toLowerCase();
+
+  let list = players.filter(p=>(counts[p.name]||0) < 3); // not maxed
+  if(p3availFilter==='unused') list = list.filter(p=>!counts[p.name]);
+  else if(p3availFilter==='1left') list = list.filter(p=>(counts[p.name]||0)===2);
+  else if(p3availFilter==='2left') list = list.filter(p=>(counts[p.name]||0)===1);
+  else if(p3availFilter==='pga')   list = list.filter(p=>p.tour==='PGA Tour');
+  if(q) list = list.filter(p=>p.name.toLowerCase().includes(q));
+
+  if(!list.length){ body.innerHTML='<div class="empty">No players match that filter.</div>'; return; }
+
+  function usageDots(name){
+    const cnt = counts[name]||0;
+    const color = cnt===2?'var(--yellow)':cnt===1?'var(--blue)':'var(--border)';
+    return [1,2,3].map(i=>`<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:2px;background:${i<=cnt?color:'var(--border)'};border:1px solid ${i<=cnt?color:'var(--border)'}"></span>`).join('');
+  }
+
+  let h = `<table class="rt"><thead><tr>
+    <th>DG Rank</th><th>Player</th><th>Tour</th><th>DG Index</th><th>Used</th><th>Left</th>
+  </tr></thead><tbody>`;
+  list.slice(0,200).forEach(p=>{
+    const cnt  = counts[p.name]||0;
+    const left = 3 - cnt;
+    const leftColor = left===3?'var(--green)':left===2?'var(--blue)':'var(--yellow)';
+    h += `<tr>
+      <td><span class="rbadge">${p.dg_rank}</span></td>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td><span class="${tourClass(p.tour)}">${esc(p.tour||'—')}</span></td>
+      <td style="font-size:12px">${p.dg_index!=null?p.dg_index.toFixed(3):'—'}</td>
+      <td>${usageDots(p.name)} <span style="font-size:12px;color:var(--muted)">${cnt}/3</span></td>
+      <td><span style="font-size:13px;font-weight:600;color:${leftColor}">${left}</span></td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  body.innerHTML = h;
+}
+
+// Pick 3 export CSV
+function exportP3CSV(){
+  let csv = 'Tournament,Date,Venue,Pick 1,Pick 2,Pick 3\n';
+  T.forEach(t=>{
+    csv += `"${t.name}","${t.date}","${t.venue}",`
+      + [0,1,2].map(s=>`"${p3picks[t.id+'_'+s]||''}"`).join(',') + '\n';
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'pick3_pool_picks_2026.csv';
+  a.click();
+  toast('Pick 3 picks exported!');
+}
+
+// Pick 3 import CSV
+function handleP3PicksFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => ingestP3CSV(e.target.result, file.name);
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function ingestP3CSV(text, filename){
+  try {
+    const lines = text.trim().split('\n');
+    if(lines.length < 2) throw new Error('File appears empty');
+    const tByName = {};
+    T.forEach(t=>{ tByName[t.name.toLowerCase()] = t.id; });
+    let imported = 0;
+    const newPicks = { ...p3picks };
+    for(let i=1;i<lines.length;i++){
+      const cols = parseCSVRow(lines[i].trim());
+      const name = (cols[0]||'').replace(/^"|"$/g,'').trim();
+      const tid  = tByName[name.toLowerCase()];
+      if(!tid) continue;
+      [0,1,2].forEach(s=>{
+        const val = (cols[3+s]||'').replace(/^"|"$/g,'').trim();
+        if(val){ newPicks[tid+'_'+s]=val; imported++; }
+      });
+    }
+    p3picks = newPicks;
+    saveP3();
+    renderP3Grid(); renderP3Usage(); renderP3Avail();
+    toast(`✓ Imported ${imported} picks from ${filename}`);
+  } catch(err){
+    toast('Import error: '+err.message);
+  }
+}
+
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s||'').replace(/"/g,'&quot;'); }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init(){
+  // Load cached players (imported CSV wins over seed)
+  const cached=localStorage.getItem('oad_players');
+  if(cached){
+    try{ players=JSON.parse(cached); } catch(e){ players=SEEDED_PLAYERS; }
+  } else {
+    // Use seeded rankings from attached CSV (current as of import date)
+    players = SEEDED_PLAYERS;
+  }
+  // Dismiss hint if players are loaded
+  if(players.length){
+    const el=document.getElementById('import-hint');
+    if(el) el.style.display='none';
+  }
+  updateRankingsStatus();
+  buildGrid();
+})();
+</script>
+</body>
+</html>
